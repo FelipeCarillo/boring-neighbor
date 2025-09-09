@@ -8,6 +8,9 @@ class STAGE(str, Enum):
     UAT = "uat"
     PROD = "prod"
 
+    def is_local(self) -> bool:
+        return self == STAGE.LOCAL
+
 
 class ConstructionPhase(str, Enum):
     """Enum for construction phases."""
