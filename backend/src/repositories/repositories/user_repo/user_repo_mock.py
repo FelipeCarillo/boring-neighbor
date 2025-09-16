@@ -1,5 +1,5 @@
 from typing import Optional, List
-from repositories.models.user import User
+from src.repositories.models.user import User
 from .user_repo_interface import IUserRepo
 
 

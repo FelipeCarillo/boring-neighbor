@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from repositories.models.user import User
+from src.repositories.models.user import User
 
 
 class IUserRepo(ABC):

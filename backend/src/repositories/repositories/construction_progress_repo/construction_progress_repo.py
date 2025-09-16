@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from repositories.models.construction import ConstructionProgress
-from .construction_progress_repo_interface import IConstructionProgressRepo
+from src.repositories.models.construction import ConstructionProgress
+from src.repositories.repositories.construction_progress_repo.construction_progress_repo_interface import IConstructionProgressRepo
 
 
 class ConstructionProgressRepo(IConstructionProgressRepo):
