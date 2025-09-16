@@ -3,8 +3,7 @@ from .user import User
 from .construction import (
     Construction, 
     ConstructionProgress, 
-    ConstructionPhase, 
-    ConstructionDocument, 
+    ConstructionPhase,
     ConstructionApproval
 )
 
@@ -16,6 +15,5 @@ __all__ = [
     "Construction",
     "ConstructionProgress",
     "ConstructionPhase",
-    "ConstructionDocument",
     "ConstructionApproval",
 ]
