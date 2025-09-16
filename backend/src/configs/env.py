@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-from helpers.enums import STAGE
+from src.helpers.enums import STAGE
 
 load_dotenv()
 

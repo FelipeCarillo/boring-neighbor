@@ -1,7 +1,7 @@
 from typing import Optional, List
 
-from repositories.models.construction import ConstructionPhase
-from .construction_phase_repo_interface import IConstructionPhaseRepo
+from src.repositories.models.construction import ConstructionPhase
+from src.repositories.repositories.construction_phase_repo.construction_phase_repo_interface import IConstructionPhaseRepo
 
 
 class ConstructionPhaseRepoMock(IConstructionPhaseRepo):

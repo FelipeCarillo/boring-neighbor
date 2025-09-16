@@ -5,7 +5,7 @@ from typing import Optional, Callable, Any, TypeVar
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from helpers.logger import setup_logger
+from src.helpers.logger import setup_logger
 
 logger = setup_logger(__name__)
 

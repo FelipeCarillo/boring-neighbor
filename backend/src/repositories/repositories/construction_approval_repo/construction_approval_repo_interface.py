@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from repositories.models.construction import ConstructionApproval
+from src.repositories.models.construction import ConstructionApproval
 
 
 class IConstructionApprovalRepo(ABC):

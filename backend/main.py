@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from router import routers
+from src.router import routers
 
 app = FastAPI(
     title="Metro SP - Boring Neighbor",

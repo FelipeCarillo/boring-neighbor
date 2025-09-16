@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, NullPool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from configs import ENV
+from src.configs import ENV
 from .repositories.construction_approval_repo import ConstructionApprovalRepo, IConstructionApprovalRepo, \
     ConstructionApprovalRepoMock
 from .repositories.construction_phase_repo import ConstructionPhaseRepo, IConstructionPhaseRepo, \

@@ -1,4 +1,4 @@
-from repositories.repositories.user_repo.user_repo_interface import IUserRepo
+from src.repositories.repositories.user_repo.user_repo_interface import IUserRepo
 
 
 class AuthService:

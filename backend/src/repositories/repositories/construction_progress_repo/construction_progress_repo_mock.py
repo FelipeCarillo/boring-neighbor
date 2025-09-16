@@ -1,8 +1,8 @@
 from typing import Optional, List
 from datetime import datetime
 
-from repositories.models.construction import ConstructionProgress
-from .construction_progress_repo_interface import IConstructionProgressRepo
+from src.repositories.models.construction import ConstructionProgress
+from src.repositories.repositories.construction_progress_repo.construction_progress_repo_interface import IConstructionProgressRepo
 
 
 class ConstructionProgressRepoMock(IConstructionProgressRepo):
