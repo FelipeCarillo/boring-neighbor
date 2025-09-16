@@ -280,11 +280,11 @@ const Historico: React.FC = () => {
                   </div>
                   
                   <div className="mt-4 space-y-2">
-                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-[#001489] border border-[#001489] rounded-md hover:bg-[#001489] hover:text-white transition-colors cursor-pointer">
+                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-[#001489] border border-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
                       <Eye className="w-4 h-4 mr-1" />
                       Detalhes
                     </button>
-                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
+                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 transition-colors cursor-pointer">
                       <Download className="w-4 h-4 mr-1" />
                       Relatório
                     </button>
