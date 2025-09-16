@@ -15,6 +15,9 @@ import {
   IconButton
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ObrasScreen from './obras';
+import HistoricoScreen from './historico';
+import ConfiguracoesScreen from './configuracoes';
 
 const { width } = Dimensions.get('window');
 
@@ -205,10 +208,10 @@ const HomeRoute = () => {
   );
 };
 
-const ObraRoute = () => <Text>Lista de Obras</Text>;
+const ObraRoute = () => <ObrasScreen />;
 const CameraRoute = () => <Text>Camera</Text>;
-const HistoricoRoute = () => <Text>Histórico</Text>;
-const ConfigRoute = () => <Text>Configurações</Text>;
+const HistoricoRoute = () => <HistoricoScreen />;
+const ConfigRoute = () => <ConfiguracoesScreen />;
 
 export default function App() {
   const [index, setIndex] = React.useState(0);
