@@ -18,6 +18,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ObrasScreen from './obras';
 import HistoricoScreen from './historico';
 import ConfiguracoesScreen from './configuracoes';
+import CameraScreen from './camera';
 
 const { width } = Dimensions.get('window');
 
@@ -209,7 +210,7 @@ const HomeRoute = () => {
 };
 
 const ObraRoute = () => <ObrasScreen />;
-const CameraRoute = () => <Text>Camera</Text>;
+const CameraRoute = () => <CameraScreen />;
 const HistoricoRoute = () => <HistoricoScreen />;
 const ConfigRoute = () => <ConfiguracoesScreen />;
 

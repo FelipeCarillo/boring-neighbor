@@ -269,7 +269,7 @@ const ObraView: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate('/obras')}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+            className="flex items-center text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 rounded px-2 py-1 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
@@ -282,11 +282,11 @@ const ObraView: React.FC = () => {
         
         {user?.role === 'ADMMaster' && (
           <div className="flex items-center space-x-2">
-            <button className="flex items-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white transition-colors cursor-pointer">
+            <button className="flex items-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
               <Edit className="w-4 h-4 mr-2" />
               Editar Obra
             </button>
-            <button className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors cursor-pointer">
+            <button className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 transition-colors cursor-pointer">
               <Trash2 className="w-4 h-4 mr-2" />
               Excluir
             </button>
@@ -315,10 +315,10 @@ const ObraView: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 ${
                     activeTab === tab.id
-                      ? 'border-[#001489] text-[#001489]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-[#001489] text-[#001489] bg-blue-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="w-4 h-4 inline mr-2" />

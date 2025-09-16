@@ -158,7 +158,7 @@ const Configuracoes: React.FC = () => {
         </div>
         <button
           onClick={handleAddAnalista}
-          className="flex items-center px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 transition-colors cursor-pointer"
+          className="flex items-center px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4 mr-2" />
           Novo Analista
@@ -293,21 +293,21 @@ const Configuracoes: React.FC = () => {
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => handleViewAnalista(analista.id)}
-                        className="text-[#001489] hover:text-[#001489]/80 transition-colors cursor-pointer"
+                        className="text-[#001489] hover:text-[#001489]/80 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 rounded p-1 transition-colors cursor-pointer"
                         title="Visualizar"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleEditAnalista(analista)}
-                        className="text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                        className="text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 rounded p-1 transition-colors cursor-pointer"
                         title="Editar"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteAnalista(analista.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+                        className="text-red-600 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 rounded p-1 transition-colors cursor-pointer"
                         title="Excluir"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -345,11 +345,11 @@ const Configuracoes: React.FC = () => {
               <div className="flex justify-center space-x-3">
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
-                <button className="px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 transition-colors cursor-pointer">
+                <button className="px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
                   {editingAnalista ? 'Salvar' : 'Criar'}
                 </button>
               </div>
