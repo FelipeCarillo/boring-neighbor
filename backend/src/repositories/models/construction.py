@@ -37,6 +37,7 @@ class ConstructionProgress(BaseModel):
 
     __tablename__ = 'construction_progress'
 
+    id = Column(UUID, primary_key=True)
     construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
     recorded_by = Column(String, nullable=False, index=True)  # UUID from User model
 
@@ -63,6 +64,7 @@ class ConstructionPhase(BaseModel):
 
     __tablename__ = 'construction_phases'
 
+    id = Column(UUID, primary_key=True)
     name = Column(String, nullable=False, unique=True)  # foundation, structure, finishing, etc.
     description = Column(Text, nullable=True)
     order = Column(Integer, nullable=False)  # Order of phases (1, 2, 3...)
@@ -75,6 +77,7 @@ class ConstructionApproval(BaseModel):
 
     __tablename__ = 'construction_approvals'
 
+    id = Column(UUID, primary_key=True)
     construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
     user_id = Column(String, ForeignKey('users.id'), nullable=False, index=True)  # User being granted permissions
     approver_id = Column(String, nullable=False, index=True)  # User who approved the permissions
