@@ -1,8 +1,9 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
 
-from src.repositories.models.construction import ConstructionApproval
-from src.repositories.repositories.construction_approval_repo.construction_approval_repo_interface import IConstructionApprovalRepo
+from repositories.models.construction import ConstructionApproval
+from repositories.repositories.construction_approval_repo.construction_approval_repo_interface import \
+    IConstructionApprovalRepo
 
 
 class ConstructionApprovalRepo(IConstructionApprovalRepo):
@@ -48,7 +49,8 @@ class ConstructionApprovalRepo(IConstructionApprovalRepo):
             ConstructionApproval.status == status
         ).all()
 
-    def get_approval_by_construction_and_user(self, construction_id: str, user_id: str) -> Optional[ConstructionApproval]:
+    def get_approval_by_construction_and_user(self, construction_id: str, user_id: str) -> Optional[
+        ConstructionApproval]:
         return self.session.query(ConstructionApproval).filter(
             ConstructionApproval.construction_id == construction_id,
             ConstructionApproval.user_id == user_id

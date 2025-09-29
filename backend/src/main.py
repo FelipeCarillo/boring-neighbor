@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 
-from src.router import routers
+from configs import ENV
+from router import routers
 
 app = FastAPI(
     title="Metro SP - Boring Neighbor",
@@ -8,8 +9,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
+root_router = APIRouter(prefix=f"/api/{ENV.API_VERSION}")
+
 for router in routers:
-    app.include_router(router)
+    root_router.include_router(router)
+
+app.include_router(root_router)
 
 if __name__ == "__main__":
     import uvicorn

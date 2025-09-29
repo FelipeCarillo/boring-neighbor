@@ -16,7 +16,8 @@ class User(BaseEntity):
     is_active: bool = Field(True, description="Whether the user account is active")
     
     @field_validator('role')
-    def validate_role(self, v):
+    @classmethod
+    def validate_role(cls, v):
         allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
         if v not in allowed_roles:
             raise ValueError(f'Role must be one of: {allowed_roles}')
@@ -33,7 +34,8 @@ class UserCreate(BaseModel):
     is_active: bool = Field(True, description="Whether the user account is active")
     
     @field_validator('role')
-    def validate_role(self, v):
+    @classmethod
+    def validate_role(cls, v):
         allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
         if v not in allowed_roles:
             raise ValueError(f'Role must be one of: {allowed_roles}')
@@ -50,7 +52,8 @@ class UserUpdate(BaseModel):
     is_active: Optional[bool] = Field(None, description="Whether the user account is active")
     
     @field_validator('role')
-    def validate_role(self, v):
+    @classmethod
+    def validate_role(cls, v):
         if v is not None:
             allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
             if v not in allowed_roles:

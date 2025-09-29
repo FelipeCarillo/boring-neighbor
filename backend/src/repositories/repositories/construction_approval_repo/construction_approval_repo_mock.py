@@ -1,7 +1,7 @@
 from typing import Optional, List
 
-from src.repositories.models.construction import ConstructionApproval
-from src.repositories.repositories.construction_approval_repo.construction_approval_repo_interface import IConstructionApprovalRepo
+from repositories.models.construction import ConstructionApproval
+from repositories.repositories.construction_approval_repo.construction_approval_repo_interface import IConstructionApprovalRepo
 
 
 class ConstructionApprovalRepoMock(IConstructionApprovalRepo):

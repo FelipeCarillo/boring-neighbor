@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
 
-from src.repositories.models.user import User
+from repositories.models.user import User
 from .user_repo_interface import IUserRepo
 
 

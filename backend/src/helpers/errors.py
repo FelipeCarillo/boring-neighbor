@@ -5,7 +5,7 @@ from typing import Optional, Callable, Any, TypeVar
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from src.helpers.logger import setup_logger
+from helpers.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -69,6 +69,7 @@ def handle_exception(func: Callable[..., T], *, handler: Optional[ExceptionHandl
             try:
                 return func(*args, **kwargs)
             except Exception as e:
+                print(e)
                 if isinstance(e, HTTPException):
                     return e
                 if handler:
