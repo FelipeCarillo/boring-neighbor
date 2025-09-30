@@ -20,7 +20,7 @@ class SoftDeleteMixin(BaseModel):
     is_deleted: bool = Field(False, description="Whether the record is soft deleted")
 
 
-class BaseEntity(BaseModel, TimestampMixin, SoftDeleteMixin):
+class BaseEntity(TimestampMixin, SoftDeleteMixin):
     """Base class for all entities."""
     
     class Config:

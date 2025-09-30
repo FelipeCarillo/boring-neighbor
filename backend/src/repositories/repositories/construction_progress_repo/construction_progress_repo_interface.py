@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, List
 from datetime import datetime
 
-from src.repositories.models.construction import ConstructionProgress
+from repositories.models.construction import ConstructionProgress
 
 
 class IConstructionProgressRepo(ABC):

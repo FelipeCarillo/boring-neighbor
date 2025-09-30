@@ -5,9 +5,7 @@ from typing import Optional, Callable, Any, TypeVar
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from src.helpers.logger import setup_logger
 
-logger = setup_logger(__name__)
 
 T = TypeVar('T')
 
@@ -44,11 +42,10 @@ class ExceptionHandler:
     def process_exception(self, e: Exception) -> None:
         """Process an exception and return client notification response if applicable."""
         if not isinstance(e, UntreatedError):
-            logger.error(f"Unhandled exception: {e}", exc_info=True)
             return
         response = self.client_notification.notify(e)
         if not response.success:
-            logger.error(f"Failed to notify exception: {response.message}")
+            pass
 
 
 def handle_exception(func: Callable[..., T], *, handler: Optional[ExceptionHandler] = None) -> Callable[..., T]:
@@ -69,6 +66,7 @@ def handle_exception(func: Callable[..., T], *, handler: Optional[ExceptionHandl
             try:
                 return func(*args, **kwargs)
             except Exception as e:
+                print(e)
                 if isinstance(e, HTTPException):
                     return e
                 if handler:

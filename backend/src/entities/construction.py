@@ -26,7 +26,8 @@ class Construction(BaseEntity):
     s3_folder_key: Optional[str] = Field(None, description="S3 folder key for progress photos and documents")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         allowed_statuses = ['planned', 'in_progress', 'completed', 'cancelled']
         if v not in allowed_statuses:
             raise ValueError(f'Status must be one of: {allowed_statuses}')
@@ -48,7 +49,8 @@ class ConstructionCreate(BaseModel):
     s3_folder_key: Optional[str] = Field(None, description="S3 folder key for progress photos and documents")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         allowed_statuses = ['planned', 'in_progress', 'completed', 'cancelled']
         if v not in allowed_statuses:
             raise ValueError(f'Status must be one of: {allowed_statuses}')
@@ -70,7 +72,8 @@ class ConstructionUpdate(BaseModel):
     s3_folder_key: Optional[str] = Field(None, description="S3 folder key for progress photos and documents")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         if v is not None:
             allowed_statuses = ['planned', 'in_progress', 'completed', 'cancelled']
             if v not in allowed_statuses:
@@ -181,7 +184,8 @@ class ConstructionApproval(BaseEntity):
     expires_at: Optional[datetime] = Field(None, description="Expiration date for the permissions")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         allowed_statuses = ['pending', 'approved', 'rejected']
         if v not in allowed_statuses:
             raise ValueError(f'Status must be one of: {allowed_statuses}')
@@ -204,7 +208,8 @@ class ConstructionApprovalCreate(BaseModel):
     expires_at: Optional[datetime] = Field(None, description="Expiration date for the permissions")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         allowed_statuses = ['pending', 'approved', 'rejected']
         if v not in allowed_statuses:
             raise ValueError(f'Status must be one of: {allowed_statuses}')
@@ -224,7 +229,8 @@ class ConstructionApprovalUpdate(BaseModel):
     expires_at: Optional[datetime] = Field(None, description="Expiration date for the permissions")
     
     @field_validator('status')
-    def validate_status(self, v):
+    @classmethod
+    def validate_status(cls, v):
         if v is not None:
             allowed_statuses = ['pending', 'approved', 'rejected']
             if v not in allowed_statuses:

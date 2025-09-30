@@ -2,8 +2,8 @@ from typing import Optional, List
 from datetime import datetime
 from sqlalchemy.orm import Session
 
-from src.repositories.models.construction import Construction
-from src.repositories.repositories.construction_repo.construction_repo_interface import IConstructionRepo
+from repositories.models.construction import Construction
+from repositories.repositories.construction_repo.construction_repo_interface import IConstructionRepo
 
 
 class ConstructionRepo(IConstructionRepo):

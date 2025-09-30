@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, NullPool
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from src.configs import ENV
+from configs import ENV
 from .repositories.construction_approval_repo import ConstructionApprovalRepo, IConstructionApprovalRepo, \
     ConstructionApprovalRepoMock
 from .repositories.construction_phase_repo import ConstructionPhaseRepo, IConstructionPhaseRepo, \
@@ -14,13 +14,25 @@ from .repositories.user_repo import UserRepo, IUserRepo, UserRepoMock
 
 
 class Repository:
-    def __init__(self):
+    def __init__(
+        self,
+        need_user_repo: bool = False,
+        need_construction_repo: bool = False,
+        need_construction_progress_repo: bool = False,
+        need_construction_phase_repo: bool = False,
+        need_construction_approval_repo: bool = False,
+    ):
         self.session = self.__connect_db()
-        self.user_repo = self.get_user_repo()
-        self.construction_repo = self.get_construction_repo()
-        self.construction_progress_repo = self.get_construction_progress_repo()
-        self.construction_phase_repo = self.get_construction_phase_repo()
-        self.construction_approval_repo = self.get_construction_approval_repo()
+        if need_user_repo:
+            self.user_repo = self.get_user_repo()
+        if need_construction_repo:
+            self.construction_repo = self.get_construction_repo()
+        if need_construction_progress_repo:
+            self.construction_progress_repo = self.get_construction_progress_repo()
+        if need_construction_phase_repo:
+            self.construction_phase_repo = self.get_construction_phase_repo()
+        if need_construction_approval_repo:
+            self.construction_approval_repo = self.get_construction_approval_repo()
 
     def __del__(self):
         if hasattr(self, 'session'):

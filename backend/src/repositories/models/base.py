@@ -38,6 +38,6 @@ class SoftDeleteMixin:
     is_deleted = Column(Boolean, default=False)
 
 
-class BaseModel(DeclarativeBase, TimestampMixin, SoftDeleteMixin):
+class BaseModel(TimestampMixin, SoftDeleteMixin, DeclarativeBase):
     """Base class for all models."""
     pass

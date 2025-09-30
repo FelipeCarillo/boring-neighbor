@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from src.helpers.auth import get_user
-from src.helpers.errors import handle_exception
+from helpers.auth import get_user
+from helpers.errors import handle_exception
 from .controller import ConstructionController
 from .service import ConstructionService
 
