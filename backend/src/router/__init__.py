@@ -1,4 +1,4 @@
-from .auth.main import auth_router
+from .auth.router import auth_router
 from .constructions.view import construction_router
 
 routers = [

@@ -4,7 +4,7 @@ from configs import ENV
 from router import routers
 
 app = FastAPI(
-    title="Metro SP - Boring Neighbor",
+    title=ENV.PROJECT_NAME,
     description="API responsável por gerenciar o acompanhamento de obras do Metro de São Paulo.",
     version="1.0.0",
 )

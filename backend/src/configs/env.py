@@ -11,6 +11,7 @@ load_dotenv()
 
 class Env(BaseSettings):
     # Environment
+    PROJECT_NAME: str
     STAGE: Annotated[STAGE, Field(default=STAGE.LOCAL)]
     API_VERSION: str
 
@@ -25,7 +26,6 @@ class Env(BaseSettings):
     # OAuth2 Redirect URIs
     UI_DOMAIN: Optional[str] = None
     API_DOMAIN: str
-    JWT_SECRET_KEY: str
 
     class Config:
         env_file = ".env"

@@ -5,8 +5,8 @@ from configs import ENV
 from helpers.auth import get_user
 from helpers.errors import handle_exception
 from .controller import AuthController
+from .models import AuthResponse, TokenFormData, UserResponse
 from .service import AuthService
-from .view import AuthResponse, TokenFormData, TokenRefreshFormData, UserResponse
 
 auth_router = APIRouter(
     prefix="/auth",
@@ -90,20 +90,9 @@ async def token(
 
 
 @handle_exception
-@auth_router.post("/token/refresh", response_model=AuthResponse)
-async def token_refresh(
-        data: TokenRefreshFormData,
-        controller: AuthController = Depends(get_controller)
-):
-    """Refresh access token using refresh token."""
-    return await controller.token_refresh(data)
-
-
-@handle_exception
 @auth_router.get("/me", response_model=UserResponse)
 async def me(
-        user_id: str = Depends(get_user),
-        controller: AuthController = Depends(get_controller)
+        user: str = Depends(get_user)
 ):
     """Get current user information."""
-    return await controller.me(user_id)
+    return UserResponse(**user.model_dump())

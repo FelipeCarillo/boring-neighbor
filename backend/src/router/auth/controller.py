@@ -1,7 +1,7 @@
 from typing import Dict, Any
 
 from .service import AuthService
-from .view import AuthResponse, UserResponse, TokenFormData
+from .models import AuthResponse, UserResponse, TokenFormData, TokenRefreshFormData
 
 
 class AuthController:
@@ -12,7 +12,7 @@ class AuthController:
         """Exchange authorization code for access token."""
         return await self.service.token(data)
 
-    async def token_refresh(self, data: Dict[str, Any]) -> AuthResponse:
+    async def token_refresh(self, data: TokenRefreshFormData) -> AuthResponse:
         """Refresh access token using refresh token."""
         return await self.service.token_refresh(data)
 

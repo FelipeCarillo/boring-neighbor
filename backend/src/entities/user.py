@@ -1,20 +1,18 @@
 from typing import Optional
 from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator
 
-from .base import BaseEntity
 
-
-class User(BaseEntity):
+class User(BaseModel):
     """User entity representing a user in the system with role-based access."""
-    
-    id: UUID = Field(..., description="Unique identifier for the user")
+
+    id: str = Field(..., description="Unique identifier for the user")
     email: str = Field(..., description="User's email address")
     name: str = Field(..., description="User's full name")
     avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
     role: str = Field(..., description="User's role in the system")
-    is_active: bool = Field(True, description="Whether the user account is active")
-    
+
     @field_validator('role')
     @classmethod
     def validate_role(cls, v):
@@ -26,13 +24,13 @@ class User(BaseEntity):
 
 class UserCreate(BaseModel):
     """Schema for creating a new user."""
-    
+
     email: str = Field(..., description="User's email address")
     name: str = Field(..., description="User's full name")
     avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
     role: str = Field(..., description="User's role in the system")
     is_active: bool = Field(True, description="Whether the user account is active")
-    
+
     @field_validator('role')
     @classmethod
     def validate_role(cls, v):
@@ -44,13 +42,13 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     """Schema for updating an existing user."""
-    
+
     email: Optional[str] = Field(None, description="User's email address")
     name: Optional[str] = Field(None, description="User's full name")
     avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
     role: Optional[str] = Field(None, description="User's role in the system")
     is_active: Optional[bool] = Field(None, description="Whether the user account is active")
-    
+
     @field_validator('role')
     @classmethod
     def validate_role(cls, v):

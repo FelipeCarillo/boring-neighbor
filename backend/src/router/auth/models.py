@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -15,7 +17,7 @@ class TokenRefreshFormData(BaseModel):
 class AuthResponse(BaseModel):
     """Authentication response."""
     access_token: str
-    refresh_token: str
+    refresh_token: Optional[str] = None
     token_type: str = "bearer"
     expires_in: int
 
@@ -25,6 +27,5 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
-    avatar_key: str = None
+    avatar_key: Optional[str] = None
     role: str
-    is_active: bool
