@@ -35,6 +35,7 @@ def login(
     redirect_uri = ENV.REDIRECT_URI
     session_state = request.query_params.get('state')
     origin = request.headers.get("referer") or request.headers.get("origin") or ""
+
     if f"{ENV.API_DOMAIN}/docs" in origin:
         state = f"{session_state}, swagger"
     elif ENV.UI_DOMAIN and ENV.UI_DOMAIN in origin:
