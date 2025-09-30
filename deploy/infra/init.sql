@@ -1,0 +1,1 @@
+CREATE SCHEMA IF NOT EXISTS boring_schema AUTHORIZATION admin;
