@@ -15,6 +15,9 @@ class Env(BaseSettings):
     STAGE: Annotated[STAGE, Field(default=STAGE.LOCAL)]
     API_VERSION: str
 
+    # S3
+    BUCKET_NAME: str
+
     # Database Connection
     DATABASE_URL: str
 
