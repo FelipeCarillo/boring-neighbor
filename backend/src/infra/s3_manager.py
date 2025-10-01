@@ -1,15 +1,10 @@
-import logging
-
 import boto3
 from botocore.exceptions import ClientError
 
 from configs import ENV
+from helpers.logger import get_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class S3Manager:
@@ -32,36 +27,36 @@ class S3Manager:
                 Params={'Bucket': self.bucket_name, 'Key': object_name},
                 ExpiresIn=expiration
             )
-            logging.info(f"Generated presigned URL for {self.bucket_name}/{object_name}")
+            logger.info(f"Generated presigned URL for {self.bucket_name}/{object_name}")
             return url
         except Exception as e:
-            logging.error(f"Failed to generate presigned URL for {self.bucket_name}/{object_name}: {e}")
+            logger.error(f"Failed to generate presigned URL for {self.bucket_name}/{object_name}: {e}")
             raise
 
     def upload_file(self, file_path, object_name):
         try:
             self.s3.upload_file(file_path, self.bucket_name, object_name)
-            logging.info(f"File {file_path} uploaded to {self.bucket_name}/{object_name}")
+            logger.info(f"File {file_path} uploaded to {self.bucket_name}/{object_name}")
         except Exception as e:
-            logging.error(f"Failed to upload file {file_path} to {self.bucket_name}/{object_name}: {e}")
+            logger.error(f"Failed to upload file {file_path} to {self.bucket_name}/{object_name}: {e}")
             raise
 
     def download_file(self, object_name, file_path):
         try:
             self.s3.download_file(self.bucket_name, object_name, file_path)
-            logging.info(f"File {object_name} downloaded from {self.bucket_name} to {file_path}")
+            logger.info(f"File {object_name} downloaded from {self.bucket_name} to {file_path}")
         except Exception as e:
-            logging.error(f"Failed to download file {object_name} from {self.bucket_name} to {file_path}: {e}")
+            logger.error(f"Failed to download file {object_name} from {self.bucket_name} to {file_path}: {e}")
             raise
 
     def list_files(self, prefix=''):
         try:
             response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
             files = [item['Key'] for item in response.get('Contents', [])]
-            logging.info(f"Listed files in {self.bucket_name} with prefix '{prefix}': {files}")
+            logger.info(f"Listed files in {self.bucket_name} with prefix '{prefix}': {files}")
             return files
         except Exception as e:
-            logging.error(f"Failed to list files in {self.bucket_name} with prefix '{prefix}': {e}")
+            logger.error(f"Failed to list files in {self.bucket_name} with prefix '{prefix}': {e}")
             raise
 
     def _connect_client(self, bucket_name: str, stage: str, region_name: str):

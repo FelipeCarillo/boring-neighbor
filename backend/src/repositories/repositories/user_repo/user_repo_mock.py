@@ -1,5 +1,6 @@
 from typing import Optional, List
-from repositories.models.user import User
+
+from entities.user import User
 from .user_repo_interface import IUserRepo
 
 
@@ -9,11 +10,11 @@ class UserRepoMock(IUserRepo):
         self.users = [
             User(
                 id="1",
-                email="teste@teste.com",
-                name="Teste",
-                cognito_user_id="1",
-                cognito_groups=["admin"],
-            ),
+                name="Felipe Carillo",
+                email="felipecarillo@outlook.com",
+                role="admin",
+                avatar_key=None
+            )
         ]
 
     def get_user_by_email(self, email: str) -> Optional[User]:

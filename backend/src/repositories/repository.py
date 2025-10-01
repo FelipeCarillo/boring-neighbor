@@ -1,72 +1,58 @@
-from sqlalchemy import create_engine, NullPool
+from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from configs import ENV
-from .repositories.construction_approval_repo import ConstructionApprovalRepo, IConstructionApprovalRepo, \
-    ConstructionApprovalRepoMock
-from .repositories.construction_phase_repo import ConstructionPhaseRepo, IConstructionPhaseRepo, \
-    ConstructionPhaseRepoMock
-from .repositories.construction_progress_repo import ConstructionProgressRepo, IConstructionProgressRepo, \
-    ConstructionProgressRepoMock
-from .repositories.construction_repo import ConstructionRepo, IConstructionRepo, ConstructionRepoMock
-from .repositories.user_repo import UserRepo, IUserRepo, UserRepoMock
+from helpers.logger import get_logger
+from .repositories.construction_approval_repo import ConstructionApprovalRepo, ConstructionApprovalRepoMock
+from .repositories.construction_phase_repo import ConstructionPhaseRepo, ConstructionPhaseRepoMock
+from .repositories.construction_progress_repo import ConstructionProgressRepo, ConstructionProgressRepoMock
+from .repositories.construction_repo import ConstructionRepo, ConstructionRepoMock
+from .repositories.user_repo import UserRepo, UserRepoMock
+
+logger = get_logger(__name__)
 
 
 class Repository:
-    def __init__(
-        self,
-        need_user_repo: bool = False,
-        need_construction_repo: bool = False,
-        need_construction_progress_repo: bool = False,
-        need_construction_phase_repo: bool = False,
-        need_construction_approval_repo: bool = False,
-    ):
+    REPOS = {
+        "user_repo": (UserRepo, UserRepoMock),
+        # "construction_repo": (ConstructionRepo, ConstructionRepoMock),
+        # "construction_progress_repo": (ConstructionProgressRepo, ConstructionProgressRepoMock),
+        # "construction_phase_repo": (ConstructionPhaseRepo, ConstructionPhaseRepoMock),
+        # "construction_approval_repo": (ConstructionApprovalRepo, ConstructionApprovalRepoMock),
+    }
+
+    def __init__(self):
+        logger.info("Inicializando Repository...")
         self.session = self.__connect_db()
-        if need_user_repo:
-            self.user_repo = self.get_user_repo()
-        if need_construction_repo:
-            self.construction_repo = self.get_construction_repo()
-        if need_construction_progress_repo:
-            self.construction_progress_repo = self.get_construction_progress_repo()
-        if need_construction_phase_repo:
-            self.construction_phase_repo = self.get_construction_phase_repo()
-        if need_construction_approval_repo:
-            self.construction_approval_repo = self.get_construction_approval_repo()
+        self._init_repos()
+        logger.info("Repository inicializado com sucesso!")
 
     def __del__(self):
-        if hasattr(self, 'session'):
+        if hasattr(self, "session"):
+            logger.info("Fechando sessão do banco de dados...")
             self.session.close()
+            logger.info("Sessão encerrada.")
 
     @staticmethod
     def __connect_db() -> Session:
         try:
-            engine = create_engine(ENV.DATABASE_URL, poolclass=NullPool)
+            logger.info("Conectando ao banco de dados...")
+            engine = create_engine(ENV.DATABASE_URL)
+            logger.info("Conexão com o banco de dados estabelecida.")
             return Session(engine)
         except (SQLAlchemyError, Exception) as error:
+            logger.exception("Erro ao conectar ao banco de dados!")
             raise Exception(f"Database connection error: {error}")
 
-    def get_user_repo(self) -> IUserRepo:
-        if ENV.is_local():
-            return UserRepoMock()
-        return UserRepo(self.session)
-
-    def get_construction_repo(self) -> IConstructionRepo:
-        if ENV.is_local():
-            return ConstructionRepoMock()
-        return ConstructionRepo(self.session)
-
-    def get_construction_progress_repo(self) -> IConstructionProgressRepo:
-        if ENV.is_local():
-            return ConstructionProgressRepoMock()
-        return ConstructionProgressRepo(self.session)
-
-    def get_construction_phase_repo(self) -> IConstructionPhaseRepo:
-        if ENV.is_local():
-            return ConstructionPhaseRepoMock()
-        return ConstructionPhaseRepo(self.session)
-
-    def get_construction_approval_repo(self) -> IConstructionApprovalRepo:
-        if ENV.is_local():
-            return ConstructionApprovalRepoMock()
-        return ConstructionApprovalRepo(self.session)
+    def _init_repos(self):
+        logger.info("Inicializando repositórios...")
+        for name, (repo_cls, mock_cls) in self.REPOS.items():
+            if ENV.is_local():
+                repo = mock_cls()
+                logger.debug(f"{name} → Mock carregado ({mock_cls.__name__})")
+            else:
+                repo = repo_cls(self.session)
+                logger.debug(f"{name} → Repo real carregado ({repo_cls.__name__})")
+            setattr(self, name, repo)
+        logger.info("Todos os repositórios foram inicializados.")

@@ -1,12 +1,14 @@
 from fastapi import FastAPI, APIRouter
 
 from configs import ENV
+from helpers.lifespan import lifespan
 from router import routers
 
 app = FastAPI(
     title=ENV.PROJECT_NAME,
     description="API responsável por gerenciar o acompanhamento de obras do Metro de São Paulo.",
     version="1.0.0",
+    lifespan=lifespan
 )
 
 root_router = APIRouter(prefix=f"/api/{ENV.API_VERSION}")
