@@ -7,7 +7,7 @@ from router import routers
 app = FastAPI(
     title=ENV.PROJECT_NAME,
     description="API responsável por gerenciar o acompanhamento de obras do Metro de São Paulo.",
-    version="1.0.0",
+    version=ENV.API_VERSION,
     lifespan=lifespan
 )
 
