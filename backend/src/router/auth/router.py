@@ -15,12 +15,12 @@ auth_router = APIRouter(
 )
 
 
-def get_service() -> AuthService:
+async def get_service() -> AuthService:
     return AuthService()
 
 
-def get_controller(
-        service: AuthService = Depends(get_service)
+async def get_controller(
+    service: AuthService = Depends(get_service)
 ) -> AuthController:
     return AuthController(service)
 
