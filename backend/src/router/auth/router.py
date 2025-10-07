@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 
 from configs import ENV
+from entities import User
 from helpers.auth import get_user
 from helpers.errors import handle_exception
 from .controller import AuthController
@@ -14,12 +15,12 @@ auth_router = APIRouter(
 )
 
 
-def get_service() -> AuthService:
+async def get_service() -> AuthService:
     return AuthService()
 
 
-def get_controller(
-        service: AuthService = Depends(get_service)
+async def get_controller(
+    service: AuthService = Depends(get_service)
 ) -> AuthController:
     return AuthController(service)
 
@@ -93,7 +94,7 @@ async def token(
 @handle_exception
 @auth_router.get("/me", response_model=UserResponse)
 async def me(
-        user: str = Depends(get_user)
+        user: User = Depends(get_user)
 ):
     """Get current user information."""
     return UserResponse(**user.model_dump())

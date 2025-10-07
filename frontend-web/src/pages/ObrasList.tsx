@@ -195,7 +195,7 @@ const ObrasList: React.FC = () => {
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <button
                   onClick={() => handleViewObra(obra.id)}
-                  className="flex items-center text-[#001489] hover:text-[#001489]/80 transition-colors cursor-pointer"
+                  className="flex items-center text-[#001489] hover:text-[#001489]/80 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 rounded px-2 py-1 transition-colors cursor-pointer"
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   Visualizar
@@ -205,14 +205,14 @@ const ObrasList: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleEditObra(obra.id)}
-                      className="flex items-center text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
+                      className="flex items-center text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 rounded px-2 py-1 transition-colors cursor-pointer"
                     >
                       <Edit className="w-4 h-4 mr-1" />
                       Editar
                     </button>
                     <button
                       onClick={() => handleDeleteObra(obra.id)}
-                      className="flex items-center text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+                      className="flex items-center text-red-600 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 rounded px-2 py-1 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
                       Excluir

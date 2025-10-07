@@ -39,13 +39,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 group ${
                   isActive 
-                    ? 'bg-white bg-opacity-20 text-white' 
-                    : 'text-gray-300 hover:bg-white hover:bg-opacity-10 hover:text-white'
+                    ? 'bg-white text-[#001489] font-semibold shadow-sm border-r-4 border-white' 
+                    : 'text-gray-300 hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-200 hover:text-[#001489] hover:shadow-md hover:scale-[1.02] hover:border-r-2 hover:border-blue-300'
                 }`}
               >
-                <Icon className="w-5 h-5 mr-3" />
+                <Icon className={`w-5 h-5 mr-3 transition-all duration-300 ${
+                  isActive 
+                    ? 'text-[#001489]' 
+                    : 'text-gray-300 group-hover:text-[#001489] group-hover:scale-110'
+                }`} />
                 {item.label}
               </Link>
             );

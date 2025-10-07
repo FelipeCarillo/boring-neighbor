@@ -1,5 +1,5 @@
 [project]
-name = "backend"
+name = "boring-neighbor"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -10,6 +10,7 @@ dependencies = [
     "langchain>=0.3.27",
     "langchain-community>=0.3.28",
     "langgraph>=0.6.6",
+    "psycopg2>=2.9.10",
     "pydantic>=2.11.7",
     "pyjwt>=2.10.1",
     "python-multipart>=0.0.20",
