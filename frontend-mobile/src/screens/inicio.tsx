@@ -19,15 +19,20 @@ import ObrasScreen from './obras';
 import HistoricoScreen from './historico';
 import ConfiguracoesScreen from './configuracoes';
 import CameraScreen from './camera';
+import ObrasEmAndamentoScreen from './obras-em-andamento';
+import TirarFotoListaObraScreen from './tirar-foto-lista-obra';
 
 const { width } = Dimensions.get('window');
 
 interface Obra {
   id: string;
   nome: string;
-  status: 'Em Andamento' | 'Concluída';
+  descricao: string;
+  localizacao: string;
+  status: 'Em Andamento' | 'Concluída' | 'Pausada' | 'Planejada';
   dataInicio: string;
   progresso: number;
+  analistas: number;
 }
 
 const HomeRoute = () => {
@@ -35,23 +40,32 @@ const HomeRoute = () => {
     {
       id: '1',
       nome: 'Estação São Paulo-Morumbi',
+      descricao: 'Construção da estação São Paulo-Morumbi da Linha 4-Amarela',
+      localizacao: 'Av. Morumbi, 1000 - São Paulo, SP',
       status: 'Em Andamento',
       dataInicio: '14/01/2024',
-      progresso: 0.65
+      progresso: 0.65,
+      analistas: 2
     },
     {
       id: '2',
       nome: 'Túnel Avenida Paulista',
+      descricao: 'Perfuração do túnel sob a Avenida Paulista',
+      localizacao: 'Av. Paulista, 500 - São Paulo, SP',
       status: 'Em Andamento',
       dataInicio: '31/01/2024',
-      progresso: 0.45
+      progresso: 0.45,
+      analistas: 1
     },
     {
       id: '3',
       nome: 'Estação Faria Lima',
+      descricao: 'Reforma e ampliação da estação Faria Lima',
+      localizacao: 'Av. Brigadeiro Faria Lima, 2000 - São Paulo, SP',
       status: 'Concluída',
       dataInicio: '09/08/2023',
-      progresso: 1.0
+      progresso: 1.0,
+      analistas: 2
     }
   ]);
 
@@ -209,13 +223,49 @@ const HomeRoute = () => {
   );
 };
 
-const ObraRoute = () => <ObrasScreen />;
+export default function App() {
+  const [index, setIndex] = React.useState(0);
+  const [selectedProjeto, setSelectedProjeto] = React.useState<Obra | null>(null);
+  const [showCamera, setShowCamera] = React.useState(false);
+  
+  const handleNavigateToCamera = () => {
+    // Abre a lista de obras em andamento primeiro
+    setShowCamera(true);
+  };
+
+  const handleObraSelect = (obra: Obra) => {
+    setSelectedProjeto(obra);
+    // Mantém showCamera true para ir direto para a câmera
+  };
+
+  const handleObraCamera = (obra: Obra) => {
+    setSelectedProjeto(obra);
+    setShowCamera(true);
+  };
+
+  const ObraRoute = () => (
+    <ObrasScreen onNavigateToCamera={handleObraCamera} />
+  );
 const CameraRoute = () => <CameraScreen />;
 const HistoricoRoute = () => <HistoricoScreen />;
 const ConfigRoute = () => <ConfiguracoesScreen />;
 
-export default function App() {
-  const [index, setIndex] = React.useState(0);
+
+  const handleBackFromCamera = () => {
+    setShowCamera(false);
+    setSelectedProjeto(null);
+    setIndex(0); // Volta para o dashboard
+  };
+
+  const handleIndexChange = (newIndex: number) => {
+    const routeKey = routes[newIndex].key;
+    
+    if (routeKey === 'camera') {
+      handleNavigateToCamera();
+    } else {
+      setIndex(newIndex);
+    }
+  };
 
   const [routes] = React.useState([
     { key: 'home', title: 'Dashboard', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
@@ -227,16 +277,36 @@ export default function App() {
 
   const renderScene = BottomNavigation.SceneMap({
     home: HomeRoute,
-    obras: ObraRoute,
+    obras: () => <ObraRoute />,
     camera: CameraRoute,
     historico: HistoricoRoute,
     configuracoes: ConfigRoute,
   });
 
+  // Se deve mostrar a lista de obras em andamento
+  if (showCamera && !selectedProjeto) {
+    return (
+      <ObrasEmAndamentoScreen 
+        onObraSelect={handleObraSelect}
+        onBack={() => setShowCamera(false)}
+      />
+    );
+  }
+
+  // Se deve mostrar a tela de câmera da obra selecionada
+  if (showCamera && selectedProjeto) {
+    return (
+      <CameraScreen 
+        obra={selectedProjeto}
+        onBack={handleBackFromCamera}
+      />
+    );
+  }
+
   return (
     <BottomNavigation
       navigationState={{ index, routes }}
-      onIndexChange={setIndex}
+      onIndexChange={handleIndexChange}
       renderScene={renderScene}
     />
   );

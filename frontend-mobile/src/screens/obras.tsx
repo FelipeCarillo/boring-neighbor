@@ -35,7 +35,11 @@ interface Obra {
   analistas: number;
 }
 
-const ObrasScreen = () => {
+interface ObrasScreenProps {
+  onNavigateToCamera?: (obra: Obra) => void;
+}
+
+const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('Todos os Status');
   const [menuVisible, setMenuVisible] = React.useState(false);
@@ -220,6 +224,20 @@ const ObrasScreen = () => {
             <MaterialCommunityIcons name="pencil" size={18} color="#ff9800" />
             <Text variant="bodySmall" style={styles.actionText}>
               Editar
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => {
+              if (onNavigateToCamera) {
+                onNavigateToCamera(obra);
+              }
+            }}
+          >
+            <MaterialCommunityIcons name="camera" size={18} color="#4caf50" />
+            <Text variant="bodySmall" style={styles.actionText}>
+              Tirar Foto
             </Text>
           </TouchableOpacity>
           
