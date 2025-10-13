@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import Column, DateTime, Boolean, UUID
+from configs import ENV
+from sqlalchemy import Column, DateTime, Boolean, UUID, MetaData
 from sqlalchemy.orm import DeclarativeBase, relationship, declared_attr
 
 
@@ -30,7 +31,7 @@ class TimestampMixin:
     @declared_attr
     def updated_by(cls):
         return relationship("User", back_populates="updated_by_user_id")
-    
+
 
 class SoftDeleteMixin:
     """Mixin to add soft delete functionality to models."""
@@ -40,4 +41,5 @@ class SoftDeleteMixin:
 
 class BaseModel(TimestampMixin, SoftDeleteMixin, DeclarativeBase):
     """Base class for all models."""
+    metadata = MetaData(schema=ENV.DATABASE_SCHEMA)
     pass

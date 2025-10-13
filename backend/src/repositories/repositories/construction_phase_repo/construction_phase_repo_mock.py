@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from repositories.models.construction import ConstructionPhase
+from entities.construction import ConstructionPhase
 from repositories.repositories.construction_phase_repo.construction_phase_repo_interface import IConstructionPhaseRepo
 
 

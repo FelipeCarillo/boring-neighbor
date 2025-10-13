@@ -1,12 +1,12 @@
-export type UserRole = 'ADMMaster' | 'Analista';
+export type UserRole = 'admin' | 'supervisor' | 'worker' | 'viewer';
 
 export interface User {
   id: string;
+  rg: string;
   name: string;
-  email: string;
+  email?: string;
   role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
+  is_active: boolean;
 }
 
 export interface Obra {
@@ -35,23 +35,30 @@ export interface AnalistaObra {
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (rg: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
 
 export interface LoginFormData {
-  email: string;
+  rg: string;
   password: string;
 }
 
 export interface SignupFormData {
+  rg: string;
   name: string;
-  email: string;
+  email?: string;
   password: string;
   confirmPassword: string;
 }
 
 export interface VerifyFormData {
   code: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
 }

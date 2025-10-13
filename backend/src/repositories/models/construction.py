@@ -20,7 +20,7 @@ class Construction(BaseModel):
     # Progress tracking fields
     current_phase = Column(String, nullable=True)  # foundation, structure, finishing, etc.
     progress_percentage = Column(Float, nullable=False, default=0.0)  # 0.0 to 100.0
-    assigned_supervisor_id = Column(String, nullable=True, index=True)  # UUID from User model
+    assigned_supervisor_id = Column(String, nullable=True, index=True)
 
     # S3 integration for progress photos and documents
     s3_folder_key = Column(String, nullable=True)
@@ -28,8 +28,7 @@ class Construction(BaseModel):
     # Relationships
     progress_records = relationship("ConstructionProgress", back_populates="construction", cascade="all, delete-orphan")
     approvals = relationship("ConstructionApproval", back_populates="construction", cascade="all, delete-orphan")
-    assigned_supervisor = relationship("User", back_populates="supervised_constructions",
-                                       foreign_keys=[assigned_supervisor_id])
+    reports_3d = relationship("Construction3DReport", back_populates="construction", cascade="all, delete-orphan")
 
 
 class ConstructionProgress(BaseModel):
@@ -39,7 +38,7 @@ class ConstructionProgress(BaseModel):
 
     id = Column(UUID, primary_key=True)
     construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
-    recorded_by = Column(String, nullable=False, index=True)  # UUID from User model
+    recorded_by = Column(String, nullable=False, index=True)
 
     progress_percentage = Column(Float, nullable=False, default=0.0)  # 0.0 to 100.0
     phase = Column(String, nullable=False)
@@ -56,7 +55,6 @@ class ConstructionProgress(BaseModel):
 
     # Relationships
     construction = relationship("Construction", back_populates="progress_records")
-    recorder = relationship("User", back_populates="progress_records")
 
 
 class ConstructionPhase(BaseModel):
@@ -96,5 +94,25 @@ class ConstructionApproval(BaseModel):
 
     # Relationships
     construction = relationship("Construction", back_populates="approvals")
-    user = relationship("User", foreign_keys=[user_id], back_populates="construction_permissions")
-    approver = relationship("User", foreign_keys=[approver_id], back_populates="construction_approvals")
+
+
+class Construction3DReport(BaseModel):
+    """Construction3DReport model for storing 3D analysis results."""
+
+    __tablename__ = 'construction_3d_reports'
+
+    id = Column(UUID, primary_key=True)
+    construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
+
+    s3_ply_key = Column(String, nullable=False)
+    s3_obj_key = Column(String, nullable=False)
+
+    status = Column(String, nullable=False, default='pending')
+    report_json = Column(Text, nullable=True)
+
+    processing_started_at = Column(DateTime, nullable=True)
+    processing_completed_at = Column(DateTime, nullable=True)
+    error_message = Column(Text, nullable=True)
+
+    # Relationships
+    construction = relationship("Construction", back_populates="3d_reports")

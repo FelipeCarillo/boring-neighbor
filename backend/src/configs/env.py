@@ -20,23 +20,26 @@ class Env(BaseSettings):
 
     # Database Connection
     DATABASE_URL: str
+    DATABASE_SCHEMA: str
 
-    # Azure Auth
-    AZURE_TENANT_ID: str
-    AZURE_CLIENT_ID: str
-    AZURE_CLIENT_SECRET: str
+    # JWT Configuration
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # OAuth2 Redirect URIs
     UI_DOMAIN: Optional[str] = None
     API_DOMAIN: str
 
+    # Celery Configuration
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+
+    # 3D Processing Configuration
+    PROCESSING_BATCH_SIZE: int = 10000
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-
-    @property
-    def REDIRECT_URI(self) -> str:
-        return f"{self.API_DOMAIN}/api/{self.API_VERSION}/auth/callback"
 
     @property
     def LOGIN_URI(self) -> str:

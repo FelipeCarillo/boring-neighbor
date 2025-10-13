@@ -1,78 +1,83 @@
-import base64
-import json
+from datetime import datetime, timedelta, UTC
+from typing import Optional
 from uuid import UUID
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2AuthorizationCodeBearer
+from fastapi.security import HTTPBearer
+from jose import JWTError, jwt
 
 from configs import ENV
 from entities import User
+from repositories.repository import Repository
 
-oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=ENV.LOGIN_URI,
-    tokenUrl=ENV.TOKEN_URI,
-)
+oauth2_scheme = HTTPBearer()
 
 
-def _decode_jwt_payload(token: str) -> dict:
-    """Decode JWT payload without signature verification."""
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create JWT access token."""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(UTC) + expires_delta
+    else:
+        expire = datetime.now(UTC) + timedelta(minutes=ENV.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, ENV.JWT_SECRET_KEY, algorithm=ENV.JWT_ALGORITHM)
+    return encoded_jwt
+
+
+def verify_token(token: str) -> dict:
+    """Verify JWT token and return payload."""
     try:
-        parts = token.split('.')
-        if len(parts) != 3:
-            raise ValueError("Invalid JWT token format")
-        
-        payload = parts[1]
-
-        payload += '=' * (-len(payload) % 4)
-
-        decoded_payload = base64.urlsafe_b64decode(payload)
-
-        payload_str = decoded_payload.decode('utf-8')
-        claims = json.loads(payload_str)
-        
-        return claims
-    except Exception as e:
-        raise ValueError(f"Failed to decode JWT payload: {str(e)}")
+        payload = jwt.decode(token, ENV.JWT_SECRET_KEY, algorithms=[ENV.JWT_ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 async def get_user(token: str = Depends(oauth2_scheme)) -> User:
-    """Extract user information from Microsoft JWT token."""
+    """Extract user information from JWT token and fetch from database."""
     try:
-        claims = _decode_jwt_payload(token)
+        # Extract token from HTTPBearer
+        token_str = token.credentials
 
-        user_id = claims.get("oid") or claims.get("sub")
-        email = claims.get("preferred_username") or claims.get("upn") or claims.get("email")
-        name = claims.get("name") or claims.get("given_name", "") + " " + claims.get("family_name", "")
-        
+        # Verify token
+        payload = verify_token(token_str)
+
+        user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not extract user ID from token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
-        if not email:
+
+        # Fetch user from database
+        repository = Repository()
+        user = repository.user_repo.get_user_by_id(UUID(user_id))
+
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not extract email from token",
+                detail="User not found",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user = User(
-            id=user_id,
-            email=email,
-            name=name.strip() if name else "",
-            role="admin",
-            avatar_key=None
-        )
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User is inactive",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         return user
 
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid token format: {str(e)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

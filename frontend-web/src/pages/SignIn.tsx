@@ -7,7 +7,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Building2, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
+  rg: z.string()
+    .min(7, 'RG deve ter exatamente 7 dígitos')
+    .max(7, 'RG deve ter exatamente 7 dígitos')
+    .regex(/^\d{7}$/, 'RG deve conter apenas números'),
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
 
@@ -29,12 +32,12 @@ const SignIn: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData): Promise<void> => {
     try {
-      await login(data.email, data.password);
+      await login(data.rg, data.password);
       navigate('/dashboard');
     } catch (error) {
       setError('root', {
         type: 'manual',
-        message: 'Email ou senha incorretos',
+        message: 'RG ou senha incorretos',
       });
     }
   };
@@ -57,18 +60,19 @@ const SignIn: React.FC = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+              <label htmlFor="rg" className="block text-sm font-medium text-gray-700">
+                RG
               </label>
               <input
-                {...register('email')}
-                type="email"
-                id="email"
+                {...register('rg')}
+                type="text"
+                id="rg"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#001489] focus:border-[#001489]"
-                placeholder="seu@email.com"
+                placeholder="1234567"
+                maxLength={7}
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              {errors.rg && (
+                <p className="mt-1 text-sm text-red-600">{errors.rg.message}</p>
               )}
             </div>
 
@@ -117,12 +121,9 @@ const SignIn: React.FC = () => {
           </button>
 
           <div className="text-center">
-            <Link
-              to="/signup"
-              className="text-sm text-[#001489] hover:text-[#001489]/80 transition-colors cursor-pointer"
-            >
-              Não tem uma conta? Cadastre-se
-            </Link>
+            <p className="text-sm text-gray-600">
+              Cadastro disponível apenas para administradores
+            </p>
           </div>
         </form>
       </div>

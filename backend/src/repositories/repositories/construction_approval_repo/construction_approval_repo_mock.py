@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from repositories.models.construction import ConstructionApproval
+from entities.construction import ConstructionApproval
 from repositories.repositories.construction_approval_repo.construction_approval_repo_interface import IConstructionApprovalRepo
 
 

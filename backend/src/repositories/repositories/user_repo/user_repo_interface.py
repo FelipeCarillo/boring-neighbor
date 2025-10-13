@@ -1,34 +1,39 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
+from uuid import UUID
 
-from repositories.models.user import User
+from entities.user import User
 
 
 class IUserRepo(ABC):
-    @abstractmethod
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        pass
-
-    @abstractmethod
-    def get_user_by_id(self, id: str) -> Optional[User]:
-        pass
+    """Interface for User repository."""
 
     @abstractmethod
     def create_user(self, user: User) -> User:
+        """Create a new user."""
         pass
 
     @abstractmethod
-    def update_user(self, user: User) -> User:
+    def get_user_by_id(self, user_id: UUID) -> Optional[User]:
+        """Get user by ID."""
         pass
 
     @abstractmethod
-    def delete_user(self, id: str) -> None:
+    def get_user_by_rg(self, rg: str) -> Optional[User]:
+        """Get user by RG."""
         pass
 
     @abstractmethod
-    def list_users(self) -> List[User]:
+    def update_user(self, user: User) -> Optional[User]:
+        """Update user."""
         pass
 
     @abstractmethod
-    def get_user_by_cognito_user_id(self, cognito_user_id: str) -> Optional[User]:
+    def delete_user(self, user_id: UUID) -> bool:
+        """Soft delete user."""
+        pass
+
+    @abstractmethod
+    def list_users(self, skip: int = 0, limit: int = 100) -> List[User]:
+        """List users with pagination."""
         pass

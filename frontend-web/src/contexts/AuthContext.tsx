@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, AuthContextType } from '../types';
+import { authApi } from '../api/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -11,24 +12,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  // Check for existing token on mount
+  useEffect(() => {
+    const token = authApi.getToken();
+    if (token) {
+      // Verify token by fetching user info
+      authApi.getMe()
+        .then((userData) => {
+          setUser(userData);
+        })
+        .catch(() => {
+          // Token is invalid, clear it
+          authApi.logout();
+        });
+    }
+  }, []);
+
+  const login = async (rg: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      // Simulação de login - substituir por chamada real da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authApi.login(rg, password);
       
-      // Mock user data
-      const mockUser: User = {
-        id: '1',
-        name: 'Administrador',
-        email: email,
-        role: 'ADMMaster',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      // Store token
+      authApi.setToken(response.access_token);
       
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      // Fetch user info
+      const userData = await authApi.getMe();
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
       console.error('Erro no login:', error);
       throw error;
@@ -38,8 +49,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = (): void => {
+    authApi.logout();
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   const value: AuthContextType = {

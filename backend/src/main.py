@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter
+from fastapi.openapi.utils import get_openapi
 
 from configs import ENV
 from helpers.lifespan import lifespan
@@ -17,6 +18,29 @@ for router in routers:
     root_router.include_router(router)
 
 app.include_router(root_router)
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=ENV.PROJECT_NAME,
+        version=ENV.API_VERSION,
+        description="API responsável por gerenciar o acompanhamento de obras do Metro de São Paulo.",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,21 +1,20 @@
-from typing import Dict, Any
-
 from .service import AuthService
-from .models import AuthResponse, UserResponse, TokenFormData, TokenRefreshFormData
+from .models import RegisterRequest, LoginRequest, TokenResponse, UserResponse
 
 
 class AuthController:
     def __init__(self, service: AuthService):
         self.service = service
 
-    async def token(self, data: TokenFormData) -> AuthResponse:
-        """Exchange authorization code for access token."""
-        return await self.service.token(data)
+    async def register_user(self, user_data: RegisterRequest) -> UserResponse:
+        """Register a new user."""
+        return await self.service.register_user(user_data)
 
-    async def token_refresh(self, data: TokenRefreshFormData) -> AuthResponse:
-        """Refresh access token using refresh token."""
-        return await self.service.token_refresh(data)
+    async def login_user(self, login_data: LoginRequest) -> TokenResponse:
+        """Login user with RG and password."""
+        result = await self.service.login_user(login_data)
+        return TokenResponse(**result)
 
-    async def me(self, user_id: str) -> UserResponse:
+    async def get_current_user(self, user_id: str) -> UserResponse:
         """Get current user information."""
-        return await self.service.me(user_id)
+        return await self.service.get_current_user(user_id)

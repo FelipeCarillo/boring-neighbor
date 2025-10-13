@@ -1,7 +1,7 @@
 from typing import Optional, List
 from datetime import datetime
 
-from repositories.models.construction import ConstructionProgress
+from entities.construction import ConstructionProgress
 from repositories.repositories.construction_progress_repo.construction_progress_repo_interface import IConstructionProgressRepo
 
 

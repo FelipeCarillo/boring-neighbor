@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from repositories.models.construction import ConstructionPhase
+from entities.construction import ConstructionPhase
 
 
 class IConstructionPhaseRepo(ABC):

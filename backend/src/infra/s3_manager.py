@@ -59,6 +59,43 @@ class S3Manager:
             logger.error(f"Failed to list files in {self.bucket_name} with prefix '{prefix}': {e}")
             raise
 
+    def upload_file_stream(self, file_stream, object_name, content_type=None):
+        try:
+            extra_args = {}
+            if content_type:
+                extra_args['ContentType'] = content_type
+            
+            self.s3.upload_fileobj(file_stream, self.bucket_name, object_name, ExtraArgs=extra_args)
+            logger.info(f"File stream uploaded to {self.bucket_name}/{object_name}")
+        except Exception as e:
+            logger.error(f"Failed to upload file stream to {self.bucket_name}/{object_name}: {e}")
+            raise
+
+    def delete_file(self, object_name):
+        try:
+            self.s3.delete_object(Bucket=self.bucket_name, Key=object_name)
+            logger.info(f"File {object_name} deleted from {self.bucket_name}")
+        except Exception as e:
+            logger.error(f"Failed to delete file {object_name} from {self.bucket_name}: {e}")
+            raise
+
+    def generate_presigned_upload_url(self, object_name, expiration=3600, content_type=None):
+        try:
+            extra_args = {}
+            if content_type:
+                extra_args['ContentType'] = content_type
+                
+            url = self.s3.generate_presigned_url(
+                'put_object',
+                Params={'Bucket': self.bucket_name, 'Key': object_name, **extra_args},
+                ExpiresIn=expiration
+            )
+            logger.info(f"Generated presigned upload URL for {self.bucket_name}/{object_name}")
+            return url
+        except Exception as e:
+            logger.error(f"Failed to generate presigned upload URL for {self.bucket_name}/{object_name}: {e}")
+            raise
+
     def _connect_client(self, bucket_name: str, stage: str, region_name: str):
         if stage != "local":
             return boto3.client("s3", region_name=region_name)

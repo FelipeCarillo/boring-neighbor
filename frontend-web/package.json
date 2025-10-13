@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
+    "@rollup/rollup-win32-x64-msvc": "^4.52.4",
     "@tailwindcss/vite": "^4.1.12",
     "@types/react-router-dom": "^5.3.3",
     "lucide-react": "^0.542.0",

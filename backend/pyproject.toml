@@ -3,18 +3,25 @@ name = "boring-neighbor"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.16.5",
     "boto3>=1.40.18",
+    "celery>=5.5.3",
     "fastapi>=0.116.1",
     "langchain>=0.3.27",
     "langchain-community>=0.3.28",
     "langgraph>=0.6.6",
+    "open3d>=0.19.0",
+    "passlib[bcrypt]",
     "psycopg2>=2.9.10",
     "pydantic>=2.11.7",
-    "pyjwt>=2.10.1",
+    "python-jose[cryptography]",
+    "pytest>=8.4.2",
     "python-multipart>=0.0.20",
     "redis[hiredis]>=6.4.0",
     "redisvl>=0.8.2",
+    "sqlalchemy>=2.0.43",
+    "trimesh>=4.8.3",
     "uvicorn>=0.35.0",
 ]

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from configs import ENV
 from helpers.logger import get_logger
+from .repositories.construction_3d_report_repo import Construction3DReportRepo, Construction3DReportRepoMock
 from .repositories.construction_approval_repo import ConstructionApprovalRepo, ConstructionApprovalRepoMock
 from .repositories.construction_phase_repo import ConstructionPhaseRepo, ConstructionPhaseRepoMock
 from .repositories.construction_progress_repo import ConstructionProgressRepo, ConstructionProgressRepoMock
@@ -14,13 +15,21 @@ logger = get_logger(__name__)
 
 
 class Repository:
+    construction_repo: ConstructionRepo
+    construction_progress_repo: ConstructionProgressRepo
+    construction_phase_repo: ConstructionPhaseRepo
+    construction_approval_repo: ConstructionApprovalRepo
+    construction_3d_report_repo: Construction3DReportRepo
+    user_repo: UserRepo
+
     REPOS = {
-        "user_repo": (UserRepo, UserRepoMock),
-        # "construction_repo": (ConstructionRepo, ConstructionRepoMock),
-        # "construction_progress_repo": (ConstructionProgressRepo, ConstructionProgressRepoMock),
-        # "construction_phase_repo": (ConstructionPhaseRepo, ConstructionPhaseRepoMock),
-        # "construction_approval_repo": (ConstructionApprovalRepo, ConstructionApprovalRepoMock),
-    }
+            "construction_repo": (ConstructionRepo, ConstructionRepoMock),
+            "construction_progress_repo": (ConstructionProgressRepo, ConstructionProgressRepoMock),
+            "construction_phase_repo": (ConstructionPhaseRepo, ConstructionPhaseRepoMock),
+            "construction_approval_repo": (ConstructionApprovalRepo, ConstructionApprovalRepoMock),
+            "construction_3d_report_repo": (Construction3DReportRepo, Construction3DReportRepoMock),
+            "user_repo": (UserRepo, UserRepoMock),
+        }
 
     def __init__(self):
         logger.info("Inicializando Repository...")

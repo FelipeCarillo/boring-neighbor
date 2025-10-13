@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, List
 from datetime import datetime
 
-from repositories.models.construction import Construction
+from entities.construction import Construction
 
 
 class IConstructionRepo(ABC):

@@ -1,23 +1,25 @@
 from typing import Optional
-
 from pydantic import BaseModel
 
 
-class TokenFormData(BaseModel):
-    """Form data for token exchange."""
-    code: str
-    state: str
+class RegisterRequest(BaseModel):
+    """Request model for user registration."""
+    rg: str
+    password: str
+    name: str
+    email: Optional[str] = None
+    role: str = "viewer"
 
 
-class TokenRefreshFormData(BaseModel):
-    """Form data for token refresh."""
-    refresh_token: str
+class LoginRequest(BaseModel):
+    """Request model for user login."""
+    rg: str
+    password: str
 
 
-class AuthResponse(BaseModel):
-    """Authentication response."""
+class TokenResponse(BaseModel):
+    """Response model for authentication tokens."""
     access_token: str
-    refresh_token: Optional[str] = None
     token_type: str = "bearer"
     expires_in: int
 
@@ -25,7 +27,8 @@ class AuthResponse(BaseModel):
 class UserResponse(BaseModel):
     """User information response."""
     id: str
-    email: str
+    rg: str
     name: str
-    avatar_key: Optional[str] = None
+    email: Optional[str] = None
     role: str
+    is_active: bool
