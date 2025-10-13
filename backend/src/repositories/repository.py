@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 class Repository:
     REPOS = {
         "user_repo": (UserRepo, UserRepoMock),
-        # "construction_repo": (ConstructionRepo, ConstructionRepoMock),
+        "construction_repo": (ConstructionRepo, ConstructionRepoMock),
         # "construction_progress_repo": (ConstructionProgressRepo, ConstructionProgressRepoMock),
         # "construction_phase_repo": (ConstructionPhaseRepo, ConstructionPhaseRepoMock),
         # "construction_approval_repo": (ConstructionApprovalRepo, ConstructionApprovalRepoMock),

@@ -28,8 +28,6 @@ class Construction(BaseModel):
     # Relationships
     progress_records = relationship("ConstructionProgress", back_populates="construction", cascade="all, delete-orphan")
     approvals = relationship("ConstructionApproval", back_populates="construction", cascade="all, delete-orphan")
-    assigned_supervisor = relationship("User", back_populates="supervised_constructions",
-                                       foreign_keys=[assigned_supervisor_id])
 
 
 class ConstructionProgress(BaseModel):
@@ -56,7 +54,6 @@ class ConstructionProgress(BaseModel):
 
     # Relationships
     construction = relationship("Construction", back_populates="progress_records")
-    recorder = relationship("User", back_populates="progress_records")
 
 
 class ConstructionPhase(BaseModel):
@@ -96,5 +93,3 @@ class ConstructionApproval(BaseModel):
 
     # Relationships
     construction = relationship("Construction", back_populates="approvals")
-    user = relationship("User", foreign_keys=[user_id], back_populates="construction_permissions")
-    approver = relationship("User", foreign_keys=[approver_id], back_populates="construction_approvals")

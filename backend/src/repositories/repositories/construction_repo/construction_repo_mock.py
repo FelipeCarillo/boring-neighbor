@@ -1,5 +1,6 @@
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from repositories.models.construction import Construction
 from .construction_repo_interface import IConstructionRepo
@@ -10,24 +11,52 @@ class ConstructionRepoMock(IConstructionRepo):
     def __init__(self):
         self.constructions = [
             Construction(
-                id="1",
-                name="Projeto Residencial Alpha",
-                description="Construção de casa residencial de 2 andares",
-                location="São Paulo, SP",
+                id=str(uuid4()),
+                name="São Paulo-Morumbi Station",
+                description="Construction of São Paulo-Morumbi station for Line 4-Yellow",
+                location="Av. Morumbi, 1000 - São Paulo, SP",
+                start_date=datetime(2024, 1, 15, tzinfo=timezone.utc),
+                end_date=datetime(2025, 6, 30, tzinfo=timezone.utc),
                 status="in_progress",
                 current_phase="structure",
-                progress_percentage=45.0,
-                assigned_supervisor_id="1",
+                progress_percentage=65.0,
+                assigned_supervisor_id="supervisor-1",
+                s3_folder_key="constructions/sp-morumbi-station",
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+                is_deleted=False
             ),
             Construction(
-                id="2",
-                name="Edifício Comercial Beta",
-                description="Construção de edifício comercial de 10 andares",
-                location="Rio de Janeiro, RJ",
-                status="planned",
+                id=str(uuid4()),
+                name="Paulista Avenue Tunnel",
+                description="Tunnel drilling under Paulista Avenue",
+                location="Av. Paulista, 500 - São Paulo, SP",
+                start_date=datetime(2024, 2, 1, tzinfo=timezone.utc),
+                end_date=datetime(2025, 12, 31, tzinfo=timezone.utc),
+                status="in_progress",
                 current_phase="foundation",
-                progress_percentage=0.0,
-                assigned_supervisor_id="1",
+                progress_percentage=45.0,
+                assigned_supervisor_id="supervisor-2",
+                s3_folder_key="constructions/paulista-tunnel",
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+                is_deleted=False
+            ),
+            Construction(
+                id=str(uuid4()),
+                name="Faria Lima Station",
+                description="Renovation and expansion of Faria Lima station",
+                location="Av. Brigadeiro Faria Lima, 2000 - São Paulo, SP",
+                start_date=datetime(2023, 8, 10, tzinfo=timezone.utc),
+                end_date=datetime(2024, 3, 15, tzinfo=timezone.utc),
+                status="completed",
+                current_phase="completed",
+                progress_percentage=100.0,
+                assigned_supervisor_id="supervisor-1",
+                s3_folder_key="constructions/faria-lima-station",
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+                is_deleted=False
             ),
         ]
 

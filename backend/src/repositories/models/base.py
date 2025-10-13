@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 
 from sqlalchemy import Column, DateTime, Boolean, UUID
-from sqlalchemy.orm import DeclarativeBase, relationship, declared_attr
+from sqlalchemy.orm import DeclarativeBase, declared_attr
 
 
 class TimestampMixin:
@@ -22,14 +22,6 @@ class TimestampMixin:
     @declared_attr
     def updated_at(cls):
         return Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
-
-    @declared_attr
-    def created_by(cls):
-        return relationship("User", back_populates="created_by_user_id")
-
-    @declared_attr
-    def updated_by(cls):
-        return relationship("User", back_populates="updated_by_user_id")
     
 
 class SoftDeleteMixin:
