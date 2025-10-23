@@ -1,9 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Users, Clock, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleNovaObra = () => {
+    navigate('/nova-obra');
+  };
+
+  const handleGerenciarAnalistas = () => {
+    navigate('/gerenciar-analistas');
+  };
+
+  const handleRelatorios = () => {
+    navigate('/relatorios');
+  };
 
   // Mock data - substituir por dados reais da API
   const stats = {
@@ -175,15 +189,24 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Ações Rápidas</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
+            <button 
+              onClick={handleNovaObra}
+              className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
+            >
               <Building2 className="w-4 h-4 mr-2" />
               Nova Obra
             </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
+            <button 
+              onClick={handleGerenciarAnalistas}
+              className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
+            >
               <Users className="w-4 h-4 mr-2" />
               Gerenciar Analistas
             </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
+            <button 
+              onClick={handleRelatorios}
+              className="flex items-center justify-center px-4 py-2 border border-[#001489] text-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
+            >
               <Clock className="w-4 h-4 mr-2" />
               Relatórios
             </button>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Calendar, MapPin, Users, Eye, FileText, Download, Filter, Search } from 'lucide-react';
 
 const Historico: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
   const [dateFilter, setDateFilter] = useState('todos');
@@ -139,6 +141,14 @@ const Historico: React.FC = () => {
       return `${diffDays} dias`;
     }
     return 'Em andamento';
+  };
+
+  const handleDetalhes = (id: string): void => {
+    navigate(`/historico-detalhes/${id}`);
+  };
+
+  const handleRelatorio = (id: string): void => {
+    navigate(`/historico-relatorio/${id}`);
   };
 
   return (
@@ -280,11 +290,17 @@ const Historico: React.FC = () => {
                   </div>
                   
                   <div className="mt-4 space-y-2">
-                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-[#001489] border border-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
+                    <button 
+                      onClick={() => handleDetalhes(obra.id)}
+                      className="flex items-center justify-center w-full px-3 py-2 text-sm text-[#001489] border border-[#001489] rounded-md hover:bg-[#001489] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
+                    >
                       <Eye className="w-4 h-4 mr-1" />
                       Detalhes
                     </button>
-                    <button className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 transition-colors cursor-pointer">
+                    <button 
+                      onClick={() => handleRelatorio(obra.id)}
+                      className="flex items-center justify-center w-full px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50 transition-colors cursor-pointer"
+                    >
                       <Download className="w-4 h-4 mr-1" />
                       Relatório
                     </button>

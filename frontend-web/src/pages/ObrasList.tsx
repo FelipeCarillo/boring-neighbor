@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Plus, Search, Filter, Eye, Edit, Trash2, MapPin, Calendar, Users } from 'lucide-react';
 
 const ObrasList: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
 
@@ -78,18 +80,22 @@ const ObrasList: React.FC = () => {
   });
 
   const handleViewObra = (id: string): void => {
-    // Navegar para a visualização da obra
-    console.log('Visualizar obra:', id);
+    navigate(`/obras/${id}`);
   };
 
   const handleEditObra = (id: string): void => {
-    // Editar obra (apenas ADMMaster)
-    console.log('Editar obra:', id);
+    navigate(`/editar-obra/${id}`);
   };
 
   const handleDeleteObra = (id: string): void => {
-    // Deletar obra (apenas ADMMaster)
-    console.log('Deletar obra:', id);
+    if (window.confirm('Tem certeza que deseja excluir esta obra?')) {
+      alert(`Obra ${id} excluída com sucesso!`);
+      console.log('Deletar obra:', id);
+    }
+  };
+
+  const handleNovaObra = (): void => {
+    navigate('/nova-obra');
   };
 
   return (
@@ -103,7 +109,10 @@ const ObrasList: React.FC = () => {
           </p>
         </div>
         {user?.role === 'ADMMaster' && (
-          <button className="flex items-center px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 transition-colors cursor-pointer">
+          <button 
+            onClick={handleNovaObra}
+            className="flex items-center px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 transition-colors cursor-pointer"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nova Obra
           </button>

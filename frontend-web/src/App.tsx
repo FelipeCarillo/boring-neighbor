@@ -15,6 +15,15 @@ import ObrasList from './pages/ObrasList';
 import ObraView from './pages/ObraView';
 import Historico from './pages/Historico';
 import Configuracoes from './pages/Configuracoes';
+import NovaObra from './pages/NovaObra';
+import GerenciarAnalistas from './pages/GerenciarAnalistas';
+import Relatorios from './pages/Relatorios';
+import EditarObra from './pages/EditarObra';
+import AnalistaView from './pages/AnalistaView';
+import EditarAnalista from './pages/EditarAnalista';
+import PermissoesAnalista from './pages/PermissoesAnalista';
+import HistoricoDetalhes from './pages/HistoricoDetalhes';
+import HistoricoRelatorio from './pages/HistoricoRelatorio';
 
 import './index.css';
 
@@ -67,6 +76,17 @@ function App() {
             />
             
             <Route
+              path="/editar-obra/:id"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <EditarObra />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
               path="/historico"
               element={
                 <ProtectedRoute>
@@ -78,11 +98,99 @@ function App() {
             />
             
             <Route
+              path="/historico-detalhes/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <HistoricoDetalhes />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/historico-relatorio/:id"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <HistoricoRelatorio />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
               path="/configuracoes"
               element={
                 <ProtectedRoute requiredRole="ADMMaster">
                   <Layout>
                     <Configuracoes />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/nova-obra"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <NovaObra />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/gerenciar-analistas"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <GerenciarAnalistas />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/relatorios"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <Relatorios />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/analista/:id"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <AnalistaView />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/editar-analista/:id"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <EditarAnalista />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/permissoes-analista/:id"
+              element={
+                <ProtectedRoute requiredRole="ADMMaster">
+                  <Layout>
+                    <PermissoesAnalista />
                   </Layout>
                 </ProtectedRoute>
               }
