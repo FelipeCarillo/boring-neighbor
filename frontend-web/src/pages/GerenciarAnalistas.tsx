@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Search, Edit, Trash2, Eye, Shield, UserCheck, UserX, Building2, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, Plus, Search, Edit, Trash2, Eye, Shield, ArrowLeft, Save, X, Mail, Phone, Calendar, UserCheck, UserX } from 'lucide-react';
 
-const Configuracoes: React.FC = () => {
+const GerenciarAnalistas: React.FC = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -76,12 +74,6 @@ const Configuracoes: React.FC = () => {
     },
   ];
 
-  const roles = [
-    { id: 'Analista Junior', label: 'Analista Junior', permissoes: ['Visualizar Obras'] },
-    { id: 'Analista Pleno', label: 'Analista Pleno', permissoes: ['Visualizar Obras', 'Editar Documentos'] },
-    { id: 'Analista Senior', label: 'Analista Senior', permissoes: ['Visualizar Obras', 'Editar Documentos', 'Aprovar Relatórios'] },
-  ];
-
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'Ativo':
@@ -116,11 +108,13 @@ const Configuracoes: React.FC = () => {
   });
 
   const handleAddAnalista = (): void => {
-    navigate('/gerenciar-analistas');
+    setEditingAnalista(null);
+    setShowAddModal(true);
   };
 
   const handleEditAnalista = (analista: any): void => {
-    navigate(`/editar-analista/${analista.id}`);
+    setEditingAnalista(analista);
+    setShowAddModal(true);
   };
 
   const handleDeleteAnalista = (id: string): void => {
@@ -131,11 +125,17 @@ const Configuracoes: React.FC = () => {
   };
 
   const handleViewAnalista = (id: string): void => {
-    navigate(`/analista/${id}`);
+    alert(`Visualizando analista ${id}`);
+    console.log('Visualizar analista:', id);
   };
 
   const handleManagePermissions = (id: string): void => {
-    navigate(`/permissoes-analista/${id}`);
+    alert(`Gerenciando permissões do analista ${id}`);
+    console.log('Gerenciar permissões:', id);
+  };
+
+  const handleBack = () => {
+    window.history.back();
   };
 
   // Verificar se o usuário tem permissão de ADMMaster
@@ -155,11 +155,23 @@ const Configuracoes: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Configurações dos Analistas</h1>
-          <p className="text-gray-600">
-            Gerencie analistas, permissões e configurações do sistema
-          </p>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleBack}
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Voltar
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+              <Users className="w-6 h-6 mr-2" />
+              Gerenciar Analistas
+            </h1>
+            <p className="text-gray-600">
+              Gerencie analistas, permissões e configurações do sistema
+            </p>
+          </div>
         </div>
         <button
           onClick={handleAddAnalista}
@@ -343,7 +355,7 @@ const Configuracoes: React.FC = () => {
         </div>
       )}
 
-      {/* Modal placeholder - implementar modal de adição/edição */}
+      {/* Modal de Adição/Edição */}
       {showAddModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -361,7 +373,14 @@ const Configuracoes: React.FC = () => {
                 >
                   Cancelar
                 </button>
-                <button className="px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer">
+                <button 
+                  onClick={() => {
+                    console.log(editingAnalista ? 'Salvar analista' : 'Criar analista');
+                    setShowAddModal(false);
+                    alert(editingAnalista ? 'Analista atualizado com sucesso!' : 'Analista criado com sucesso!');
+                  }}
+                  className="px-4 py-2 bg-[#001489] text-white rounded-md hover:bg-[#001489]/90 focus:outline-none focus:ring-2 focus:ring-[#001489] focus:ring-opacity-50 transition-colors cursor-pointer"
+                >
                   {editingAnalista ? 'Salvar' : 'Criar'}
                 </button>
               </div>
@@ -373,4 +392,4 @@ const Configuracoes: React.FC = () => {
   );
 };
 
-export default Configuracoes;
+export default GerenciarAnalistas;
