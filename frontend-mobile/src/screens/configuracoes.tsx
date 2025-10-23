@@ -4,7 +4,8 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity,
-  Dimensions 
+  Dimensions,
+  Alert
 } from 'react-native';
 import { 
   Text, 
@@ -18,6 +19,10 @@ import {
   FAB
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AnalistaViewScreen from './analista-view';
+import AnalistaEditScreen from './analista-edit';
+import AnalistaPermissoesScreen from './analista-permissoes';
+import NovoAnalistaScreen from './novo-analista';
 
 const { width } = Dimensions.get('window');
 
@@ -37,6 +42,11 @@ const ConfiguracoesScreen = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('Todos os Status');
   const [menuVisible, setMenuVisible] = React.useState(false);
+  const [showAnalistaView, setShowAnalistaView] = React.useState(false);
+  const [showAnalistaEdit, setShowAnalistaEdit] = React.useState(false);
+  const [showAnalistaPermissoes, setShowAnalistaPermissoes] = React.useState(false);
+  const [showNovoAnalista, setShowNovoAnalista] = React.useState(false);
+  const [selectedAnalista, setSelectedAnalista] = React.useState<Analista | null>(null);
 
   const [analistas] = React.useState<Analista[]>([
     {
@@ -152,6 +162,64 @@ const ConfiguracoesScreen = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleVisualizar = (analista: Analista) => {
+    setSelectedAnalista(analista);
+    setShowAnalistaView(true);
+  };
+
+  const handleEditar = (analista: Analista) => {
+    setSelectedAnalista(analista);
+    setShowAnalistaEdit(true);
+  };
+
+  const handlePermissoes = (analista: Analista) => {
+    setSelectedAnalista(analista);
+    setShowAnalistaPermissoes(true);
+  };
+
+  const handleNovoAnalista = () => {
+    setShowNovoAnalista(true);
+  };
+
+  const handleBackFromView = () => {
+    setShowAnalistaView(false);
+    setSelectedAnalista(null);
+  };
+
+  const handleBackFromEdit = () => {
+    setShowAnalistaEdit(false);
+    setSelectedAnalista(null);
+  };
+
+  const handleBackFromPermissoes = () => {
+    setShowAnalistaPermissoes(false);
+    setSelectedAnalista(null);
+  };
+
+  const handleBackFromNovo = () => {
+    setShowNovoAnalista(false);
+  };
+
+  const handleAnalistaEditado = (analistaEditado: any) => {
+    console.log('Analista editado:', analistaEditado);
+    Alert.alert('Sucesso!', 'Analista atualizado com sucesso!');
+    setShowAnalistaEdit(false);
+    setSelectedAnalista(null);
+  };
+
+  const handlePermissoesSalvas = (permissoes: any) => {
+    console.log('Permissões salvas:', permissoes);
+    Alert.alert('Sucesso!', 'Permissões atualizadas com sucesso!');
+    setShowAnalistaPermissoes(false);
+    setSelectedAnalista(null);
+  };
+
+  const handleAnalistaCriado = (novoAnalista: any) => {
+    console.log('Novo analista criado:', novoAnalista);
+    Alert.alert('Sucesso!', 'Analista criado com sucesso!');
+    setShowNovoAnalista(false);
+  };
+
   const renderEstatisticaCard = (stat: any, index: number) => (
     <Card key={index} style={[styles.statCard, { width: (width - 48) / 2 }]}>
       <Card.Content style={styles.statCardContent}>
@@ -256,21 +324,30 @@ const ConfiguracoesScreen = () => {
 
         {/* Ações */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleVisualizar(analista)}
+          >
             <MaterialCommunityIcons name="eye" size={18} color="#2196f3" />
             <Text variant="bodySmall" style={styles.actionText}>
               Visualizar
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleEditar(analista)}
+          >
             <MaterialCommunityIcons name="pencil" size={18} color="#ff9800" />
             <Text variant="bodySmall" style={styles.actionText}>
               Editar
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handlePermissoes(analista)}
+          >
             <MaterialCommunityIcons name="account-cog" size={18} color="#9c27b0" />
             <Text variant="bodySmall" style={styles.actionText}>
               Permissões
@@ -283,33 +360,69 @@ const ConfiguracoesScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text variant="headlineMedium" style={styles.headerTitle}>
-            Metrô Obras
-          </Text>
-          <View style={styles.userInfo}>
-            <Avatar.Icon size={32} icon="account" style={styles.avatar} />
-            <View style={styles.userDetails}>
-              <Text variant="bodyMedium" style={styles.userName}>
-                Administrador
-              </Text>
-              <Text variant="bodySmall" style={styles.userRole}>
-                ADMMaster
-              </Text>
-            </View>
-            <IconButton
-              icon="logout"
-              size={20}
-              onPress={() => {}}
-              style={styles.logoutButton}
-            />
-          </View>
-        </View>
-      </View>
+      {/* Renderizar telas condicionais */}
+      {showAnalistaView && selectedAnalista && (
+        <AnalistaViewScreen
+          analista={selectedAnalista}
+          onBack={handleBackFromView}
+          onEdit={handleEditar}
+          onPermissoes={handlePermissoes}
+        />
+      )}
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      {showAnalistaEdit && selectedAnalista && (
+        <AnalistaEditScreen
+          analista={selectedAnalista}
+          onBack={handleBackFromEdit}
+          onSave={handleAnalistaEditado}
+        />
+      )}
+
+      {showAnalistaPermissoes && selectedAnalista && (
+        <AnalistaPermissoesScreen
+          analista={selectedAnalista}
+          onBack={handleBackFromPermissoes}
+          onSave={handlePermissoesSalvas}
+        />
+      )}
+
+      {showNovoAnalista && (
+        <NovoAnalistaScreen
+          onBack={handleBackFromNovo}
+          onAnalistaCriado={handleAnalistaCriado}
+        />
+      )}
+
+      {/* Tela principal de configurações */}
+      {!showAnalistaView && !showAnalistaEdit && !showAnalistaPermissoes && !showNovoAnalista && (
+        <>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <Text variant="headlineMedium" style={styles.headerTitle}>
+                Metrô Obras
+              </Text>
+              <View style={styles.userInfo}>
+                <Avatar.Icon size={32} icon="account" style={styles.avatar} />
+                <View style={styles.userDetails}>
+                  <Text variant="bodyMedium" style={styles.userName}>
+                    Administrador
+                  </Text>
+                  <Text variant="bodySmall" style={styles.userRole}>
+                    ADMMaster
+                  </Text>
+                </View>
+                <IconButton
+                  icon="logout"
+                  size={20}
+                  onPress={() => {}}
+                  style={styles.logoutButton}
+                />
+              </View>
+            </View>
+          </View>
+
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Título da seção */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" style={styles.sectionTitle}>
@@ -350,7 +463,6 @@ const ConfiguracoesScreen = () => {
                 <Text variant="bodyMedium" style={styles.filterText}>
                   {statusFilter}
                 </Text>
-                <MaterialCommunityIcons name="chevron-down" size={16} color="#2196f3" />
               </TouchableOpacity>
             }
           >
@@ -389,9 +501,11 @@ const ConfiguracoesScreen = () => {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {}}
+        onPress={handleNovoAnalista}
         label="Novo Analista"
       />
+        </>
+      )}
     </View>
   );
 };
