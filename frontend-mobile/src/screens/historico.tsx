@@ -4,7 +4,8 @@ import {
   StyleSheet, 
   ScrollView, 
   TouchableOpacity,
-  Dimensions 
+  Dimensions,
+  Alert
 } from 'react-native';
 import { 
   Text, 
@@ -17,6 +18,7 @@ import {
   Divider
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import HistoricoDetalhesScreen from './historico-detalhes';
 
 const { width } = Dimensions.get('window');
 
@@ -40,6 +42,8 @@ const HistoricoScreen = () => {
   const [dataFilter, setDataFilter] = React.useState('Todas as Datas');
   const [statusMenuVisible, setStatusMenuVisible] = React.useState(false);
   const [dataMenuVisible, setDataMenuVisible] = React.useState(false);
+  const [showDetalhes, setShowDetalhes] = React.useState(false);
+  const [selectedObra, setSelectedObra] = React.useState<ObraHistorico | null>(null);
 
   const [obras] = React.useState<ObraHistorico[]>([
     {
@@ -134,6 +138,48 @@ const HistoricoScreen = () => {
     const matchesStatus = statusFilter === 'Todos os Status' || obra.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleDetalhes = (obra: ObraHistorico) => {
+    setSelectedObra(obra);
+    setShowDetalhes(true);
+  };
+
+  const handleRelatorio = (obra: ObraHistorico) => {
+    Alert.alert(
+      'Gerar Relatório',
+      `Escolha o formato para o relatório de "${obra.nome}":`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'PDF', 
+          onPress: () => {
+            Alert.alert('Relatório PDF', 'Relatório em PDF gerado com sucesso!');
+          }
+        },
+        { 
+          text: 'Excel', 
+          onPress: () => {
+            Alert.alert('Relatório Excel', 'Relatório em Excel gerado com sucesso!');
+          }
+        },
+        { 
+          text: 'CSV', 
+          onPress: () => {
+            Alert.alert('Relatório CSV', 'Relatório em CSV gerado com sucesso!');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleBackFromDetalhes = () => {
+    setShowDetalhes(false);
+    setSelectedObra(null);
+  };
+
+  const handleGerarRelatorio = (obra: any) => {
+    console.log('Relatório gerado para:', obra.nome);
+  };
 
   const renderEstatisticaCard = (stat: any, index: number) => (
     <Card key={index} style={[styles.statCard, { width: (width - 48) / 2 }]}>
@@ -239,14 +285,20 @@ const HistoricoScreen = () => {
           </View>
 
           <View style={styles.actionsContainer}>
-            <TouchableOpacity style={[styles.actionButton, styles.detailsButton]}>
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.detailsButton]}
+              onPress={() => handleDetalhes(obra)}
+            >
               <MaterialCommunityIcons name="eye" size={16} color="#fff" />
               <Text variant="bodySmall" style={styles.actionTextWhite}>
                 Detalhes
               </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={[styles.actionButton, styles.reportButton]}>
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.reportButton]}
+              onPress={() => handleRelatorio(obra)}
+            >
               <MaterialCommunityIcons name="download" size={16} color="#666" />
               <Text variant="bodySmall" style={styles.actionTextGray}>
                 Relatório
@@ -260,33 +312,45 @@ const HistoricoScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Text variant="headlineMedium" style={styles.headerTitle}>
-            Metrô Obras
-          </Text>
-          <View style={styles.userInfo}>
-            <Avatar.Icon size={32} icon="account" style={styles.avatar} />
-            <View style={styles.userDetails}>
-              <Text variant="bodyMedium" style={styles.userName}>
-                Administrador
-              </Text>
-              <Text variant="bodySmall" style={styles.userRole}>
-                ADMMaster
-              </Text>
-            </View>
-            <IconButton
-              icon="logout"
-              size={20}
-              onPress={() => {}}
-              style={styles.logoutButton}
-            />
-          </View>
-        </View>
-      </View>
+      {/* Renderizar tela de detalhes se selecionada */}
+      {showDetalhes && selectedObra && (
+        <HistoricoDetalhesScreen
+          obra={selectedObra}
+          onBack={handleBackFromDetalhes}
+          onGerarRelatorio={handleGerarRelatorio}
+        />
+      )}
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      {/* Tela principal do histórico */}
+      {!showDetalhes && (
+        <>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <Text variant="headlineMedium" style={styles.headerTitle}>
+                Metrô Obras
+              </Text>
+              <View style={styles.userInfo}>
+                <Avatar.Icon size={32} icon="account" style={styles.avatar} />
+                <View style={styles.userDetails}>
+                  <Text variant="bodyMedium" style={styles.userName}>
+                    Administrador
+                  </Text>
+                  <Text variant="bodySmall" style={styles.userRole}>
+                    ADMMaster
+                  </Text>
+                </View>
+                <IconButton
+                  icon="logout"
+                  size={20}
+                  onPress={() => {}}
+                  style={styles.logoutButton}
+                />
+              </View>
+            </View>
+          </View>
+
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Título da seção */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" style={styles.sectionTitle}>
@@ -320,7 +384,6 @@ const HistoricoScreen = () => {
                   <Text variant="bodySmall" style={styles.filterText}>
                     {statusFilter}
                   </Text>
-                  <MaterialCommunityIcons name="chevron-down" size={14} color="#2196f3" />
                 </TouchableOpacity>
               }
             >
@@ -348,7 +411,6 @@ const HistoricoScreen = () => {
                   <Text variant="bodySmall" style={styles.filterText}>
                     {dataFilter}
                   </Text>
-                  <MaterialCommunityIcons name="chevron-down" size={14} color="#2196f3" />
                 </TouchableOpacity>
               }
             >
@@ -393,6 +455,8 @@ const HistoricoScreen = () => {
           </View>
         </View>
       </ScrollView>
+        </>
+      )}
     </View>
   );
 };

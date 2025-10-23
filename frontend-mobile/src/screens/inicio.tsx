@@ -21,6 +21,9 @@ import ConfiguracoesScreen from './configuracoes';
 import CameraScreen from './camera';
 import ObrasEmAndamentoScreen from './obras-em-andamento';
 import TirarFotoListaObraScreen from './tirar-foto-lista-obra';
+import NovaObraScreen from './nova-obra';
+import GerenciarAnalistasScreen from './gerenciar-analistas';
+import RelatoriosScreen from './relatorios';
 
 const { width } = Dimensions.get('window');
 
@@ -35,7 +38,11 @@ interface Obra {
   analistas: number;
 }
 
-const HomeRoute = () => {
+const HomeRoute = ({ onNovaObra, onGerenciarAnalistas, onRelatorios }: { 
+  onNovaObra: () => void; 
+  onGerenciarAnalistas: () => void; 
+  onRelatorios: () => void; 
+}) => {
   const [obras] = React.useState<Obra[]>([
     {
       id: '1',
@@ -205,7 +212,16 @@ const HomeRoute = () => {
           </Text>
           <View style={styles.actionsContainer}>
             {acoesRapidas.map((acao, index) => (
-              <TouchableOpacity key={index} style={styles.actionButton}>
+              <TouchableOpacity 
+                key={index} 
+                style={styles.actionButton}
+                onPress={
+                  acao.titulo === 'Nova Obra' ? onNovaObra : 
+                  acao.titulo === 'Gerenciar Analistas' ? onGerenciarAnalistas : 
+                  acao.titulo === 'Relatórios' ? onRelatorios : 
+                  undefined
+                }
+              >
                 <MaterialCommunityIcons 
                   name={acao.icone as any} 
                   size={24} 
@@ -227,6 +243,9 @@ export default function App() {
   const [index, setIndex] = React.useState(0);
   const [selectedProjeto, setSelectedProjeto] = React.useState<Obra | null>(null);
   const [showCamera, setShowCamera] = React.useState(false);
+  const [showNovaObra, setShowNovaObra] = React.useState(false);
+  const [showGerenciarAnalistas, setShowGerenciarAnalistas] = React.useState(false);
+  const [showRelatorios, setShowRelatorios] = React.useState(false);
   
   const handleNavigateToCamera = () => {
     // Abre a lista de obras em andamento primeiro
@@ -241,6 +260,24 @@ export default function App() {
   const handleObraCamera = (obra: Obra) => {
     setSelectedProjeto(obra);
     setShowCamera(true);
+  };
+
+  const handleNovaObra = () => {
+    setShowNovaObra(true);
+  };
+
+  const handleGerenciarAnalistas = () => {
+    setShowGerenciarAnalistas(true);
+  };
+
+  const handleRelatorios = () => {
+    setShowRelatorios(true);
+  };
+
+  const handleObraCriada = (novaObra: any) => {
+    // Aqui você pode adicionar a nova obra à lista de obras
+    console.log('Nova obra criada:', novaObra);
+    // Em uma implementação real, você atualizaria o estado das obras
   };
 
   const ObraRoute = () => (
@@ -276,12 +313,40 @@ const ConfigRoute = () => <ConfiguracoesScreen />;
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    home: HomeRoute,
+    home: () => <HomeRoute onNovaObra={handleNovaObra} onGerenciarAnalistas={handleGerenciarAnalistas} onRelatorios={handleRelatorios} />,
     obras: () => <ObraRoute />,
     camera: CameraRoute,
     historico: HistoricoRoute,
     configuracoes: ConfigRoute,
   });
+
+  // Se deve mostrar a tela de nova obra
+  if (showNovaObra) {
+    return (
+      <NovaObraScreen 
+        onBack={() => setShowNovaObra(false)}
+        onObraCriada={handleObraCriada}
+      />
+    );
+  }
+
+  // Se deve mostrar a tela de gerenciar analistas
+  if (showGerenciarAnalistas) {
+    return (
+      <GerenciarAnalistasScreen 
+        onBack={() => setShowGerenciarAnalistas(false)}
+      />
+    );
+  }
+
+  // Se deve mostrar a tela de relatórios
+  if (showRelatorios) {
+    return (
+      <RelatoriosScreen 
+        onBack={() => setShowRelatorios(false)}
+      />
+    );
+  }
 
   // Se deve mostrar a lista de obras em andamento
   if (showCamera && !selectedProjeto) {

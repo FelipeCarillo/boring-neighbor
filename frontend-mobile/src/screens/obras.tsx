@@ -5,7 +5,8 @@ import {
   ScrollView, 
   TouchableOpacity,
   TextInput,
-  Dimensions 
+  Dimensions,
+  Alert
 } from 'react-native';
 import { 
   Text, 
@@ -20,6 +21,9 @@ import {
   Divider
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ObraViewScreen from './obra-view';
+import EditarObraScreen from './editar-obra';
+import NovaObraScreen from './nova-obra';
 
 const { width } = Dimensions.get('window');
 
@@ -43,8 +47,12 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('Todos os Status');
   const [menuVisible, setMenuVisible] = React.useState(false);
+  const [showObraView, setShowObraView] = React.useState(false);
+  const [showEditarObra, setShowEditarObra] = React.useState(false);
+  const [showNovaObra, setShowNovaObra] = React.useState(false);
+  const [selectedObra, setSelectedObra] = React.useState<Obra | null>(null);
 
-  const [obras] = React.useState<Obra[]>([
+  const [obras, setObras] = React.useState<Obra[]>([
     {
       id: '1',
       nome: 'Estação São Paulo-Morumbi',
@@ -137,6 +145,94 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleVisualizar = (obra: Obra) => {
+    setSelectedObra(obra);
+    setShowObraView(true);
+  };
+
+  const handleEditar = (obra: Obra) => {
+    setSelectedObra(obra);
+    // Se estamos na tela de visualização, fechamos ela primeiro
+    if (showObraView) {
+      setShowObraView(false);
+    }
+    setShowEditarObra(true);
+  };
+
+  const handleExcluir = (obra: Obra) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir a obra "${obra.nome}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Excluir', 
+          style: 'destructive',
+          onPress: () => {
+            // Remove a obra da lista
+            setObras(prevObras => prevObras.filter(o => o.id !== obra.id));
+            Alert.alert('Sucesso!', 'Obra excluída com sucesso!');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleObraEditada = (obraEditada: any) => {
+    console.log('=== DEBUG: Obra editada recebida ===');
+    console.log('Obra editada:', JSON.stringify(obraEditada, null, 2));
+    console.log('Lista atual antes:', obras.length, 'obras');
+    
+    // Atualiza a obra na lista
+    setObras(prevObras => {
+      const novaLista = prevObras.map(obra => 
+        obra.id === obraEditada.id ? obraEditada : obra
+      );
+      console.log('Nova lista após edição:', novaLista.length, 'obras');
+      console.log('Obra atualizada:', novaLista.find(o => o.id === obraEditada.id));
+      return novaLista;
+    });
+    
+    Alert.alert('Sucesso!', 'Obra atualizada com sucesso!');
+    setShowEditarObra(false);
+    setSelectedObra(null);
+  };
+
+  const handleBackFromView = () => {
+    setShowObraView(false);
+    setSelectedObra(null);
+  };
+
+  const handleBackFromEdit = () => {
+    setShowEditarObra(false);
+    setSelectedObra(null);
+  };
+
+  const handleNovaObra = () => {
+    setShowNovaObra(true);
+  };
+
+  const handleObraCriada = (novaObra: any) => {
+    console.log('=== DEBUG: Nova obra recebida ===');
+    console.log('Nova obra:', JSON.stringify(novaObra, null, 2));
+    console.log('Lista atual antes:', obras.length, 'obras');
+    
+    // Adiciona a nova obra à lista
+    setObras(prevObras => {
+      const novaLista = [...prevObras, novaObra];
+      console.log('Nova lista após adição:', novaLista.length, 'obras');
+      console.log('Última obra adicionada:', novaLista[novaLista.length - 1]);
+      return novaLista;
+    });
+    
+    Alert.alert('Sucesso!', 'Nova obra criada com sucesso!');
+    setShowNovaObra(false);
+  };
+
+  const handleBackFromNovaObra = () => {
+    setShowNovaObra(false);
+  };
+
   const renderObraCard = (obra: Obra) => (
     <Card key={obra.id} style={styles.obraCard}>
       <Card.Content>
@@ -213,14 +309,20 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
 
         {/* Ações */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleVisualizar(obra)}
+          >
             <MaterialCommunityIcons name="eye" size={18} color="#2196f3" />
             <Text variant="bodySmall" style={styles.actionText}>
               Visualizar
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleEditar(obra)}
+          >
             <MaterialCommunityIcons name="pencil" size={18} color="#ff9800" />
             <Text variant="bodySmall" style={styles.actionText}>
               Editar
@@ -241,7 +343,10 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => handleExcluir(obra)}
+          >
             <MaterialCommunityIcons name="delete" size={18} color="#f44336" />
             <Text variant="bodySmall" style={styles.actionText}>
               Excluir
@@ -251,6 +356,38 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
       </Card.Content>
     </Card>
   );
+
+  // Se deve mostrar a tela de nova obra
+  if (showNovaObra) {
+    return (
+      <NovaObraScreen 
+        onBack={handleBackFromNovaObra}
+        onObraCriada={handleObraCriada}
+      />
+    );
+  }
+
+  // Se deve mostrar a tela de visualização
+  if (showObraView && selectedObra) {
+    return (
+      <ObraViewScreen 
+        obra={selectedObra}
+        onBack={handleBackFromView}
+        onEdit={(obra) => handleEditar(obra)}
+      />
+    );
+  }
+
+  // Se deve mostrar a tela de edição
+  if (showEditarObra && selectedObra) {
+    return (
+      <EditarObraScreen 
+        obra={selectedObra}
+        onBack={handleBackFromEdit}
+        onObraEditada={handleObraEditada}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -313,7 +450,6 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
                 <Text variant="bodyMedium" style={styles.filterText}>
                   {statusFilter}
                 </Text>
-                <MaterialCommunityIcons name="chevron-down" size={16} color="#2196f3" />
               </TouchableOpacity>
             }
           >
@@ -352,7 +488,7 @@ const ObrasScreen: React.FC<ObrasScreenProps> = ({ onNavigateToCamera }) => {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {}}
+        onPress={handleNovaObra}
         label="Nova Obra"
       />
     </View>
