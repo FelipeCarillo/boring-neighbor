@@ -1,43 +1,39 @@
-from datetime import datetime, UTC
-
-from sqlalchemy import Column, DateTime, Boolean, UUID
-from sqlalchemy.orm import DeclarativeBase, relationship, declared_attr
-
-
-class TimestampMixin:
-    """Mixin to add timestamp fields to models."""
-
-    @declared_attr
-    def created_by_user_id(cls):
-        return Column(UUID, nullable=True)
-
-    @declared_attr
-    def updated_by_user_id(cls):
-        return Column(UUID, nullable=True)
-
-    @declared_attr
-    def created_at(cls):
-        return Column(DateTime, default=datetime.now(UTC))
-
-    @declared_attr
-    def updated_at(cls):
-        return Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
-
-    @declared_attr
-    def created_by(cls):
-        return relationship("User", back_populates="created_by_user_id")
-
-    @declared_attr
-    def updated_by(cls):
-        return relationship("User", back_populates="updated_by_user_id")
-    
-
-class SoftDeleteMixin:
-    """Mixin to add soft delete functionality to models."""
-
-    is_deleted = Column(Boolean, default=False)
+from datetime import datetime
+from uuid import uuid4
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class BaseModel(TimestampMixin, SoftDeleteMixin, DeclarativeBase):
-    """Base class for all models."""
+class Base(DeclarativeBase):
+    """
+    Base class for all SQLAlchemy models.
+    """
     pass
+
+
+class BaseModel(Base):
+    """
+    Base model with common fields for all entities.
+    """
+    
+    __abstract__ = True
+    
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid4()),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+

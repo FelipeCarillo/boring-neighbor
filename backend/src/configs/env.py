@@ -1,50 +1,30 @@
-from typing import Annotated, Optional
-
-from dotenv import load_dotenv
-from pydantic import Field
-from pydantic_settings import BaseSettings
-
-from helpers.enums import STAGE
-
-load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Env(BaseSettings):
-    # Environment
-    PROJECT_NAME: str
-    STAGE: Annotated[STAGE, Field(default=STAGE.LOCAL)]
-    API_VERSION: str
+class Settings(BaseSettings):
+    """
+    Application settings loaded from environment variables.
+    """
+    
+    database_url: str = "postgresql+psycopg2://admin:secret@localhost:5432/boring_neighbor"
+    jwt_secret_key: str = "your-secret-key-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 60
+    jwt_refresh_token_expire_days: int = 7
+    
+    s3_endpoint_url: str = "http://localhost:9000"
+    s3_access_key: str = "minio"
+    s3_secret_key: str = "minio123"
+    s3_bucket_name: str = "metro-sp-constructions"
+    s3_region: str = "us-east-1"
+    
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4"
+    
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    # S3
-    BUCKET_NAME: str
 
-    # Database Connection
-    DATABASE_URL: str
+settings = Settings()
 
-    # Azure Auth
-    AZURE_TENANT_ID: str
-    AZURE_CLIENT_ID: str
-    AZURE_CLIENT_SECRET: str
-
-    # OAuth2 Redirect URIs
-    UI_DOMAIN: Optional[str] = None
-    API_DOMAIN: str
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
-    @property
-    def REDIRECT_URI(self) -> str:
-        return f"{self.API_DOMAIN}/api/{self.API_VERSION}/auth/callback"
-
-    @property
-    def LOGIN_URI(self) -> str:
-        return f"{self.API_DOMAIN}/api/{self.API_VERSION}/auth/login"
-
-    @property
-    def TOKEN_URI(self) -> str:
-        return f"{self.API_DOMAIN}/api/{self.API_VERSION}/auth/token"
-
-    def is_local(self) -> bool:
-        return self.STAGE == STAGE.LOCAL

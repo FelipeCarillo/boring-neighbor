@@ -1,24 +1,46 @@
-from sqlalchemy import Column, String, UUID, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy import String, Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 
-from .base import BaseModel
+from src.repositories.models.base import BaseModel
+from src.helpers.enums import UserRole
+
+if TYPE_CHECKING:
+    from src.repositories.models.construction import Construction, ConstructionProgress, BIMReference, DeviationReport
 
 
 class User(BaseModel):
-    """User model representing a user in the system with Cognito integration."""
-
-    __tablename__ = 'users'
-
-    id = Column(UUID, primary_key=True, index=True)
-    email = Column(String, nullable=False, unique=True, index=True)
-    name = Column(String, nullable=False)
-    avatar_key = Column(String, nullable=True)
-    cognito_user_id = Column(String, nullable=False, unique=True, index=True)  # AWS Cognito user ID (required)
-    cognito_groups = Column(Text, nullable=True)  # JSON string with Cognito groups: ["admin", "supervisor"]
+    """
+    User model representing system users with different roles.
+    """
     
-    # Relationships
-    construction_approvals = relationship("ConstructionApproval", foreign_keys="ConstructionApproval.approver_id", back_populates="approver", cascade="all, delete-orphan")
-    construction_permissions = relationship("ConstructionApproval", foreign_keys="ConstructionApproval.user_id", back_populates="user", cascade="all, delete-orphan")
-    uploaded_documents = relationship("ConstructionDocument", back_populates="uploader", cascade="all, delete-orphan")
-    supervised_constructions = relationship("Construction", back_populates="assigned_supervisor", foreign_keys="Construction.assigned_supervisor_id")
-    progress_records = relationship("ConstructionProgress", back_populates="recorder", cascade="all, delete-orphan")
+    __tablename__ = "users"
+    
+    registro: Mapped[str] = mapped_column(String(7), unique=True, nullable=False, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), nullable=False)
+    
+    created_constructions: Mapped[list["Construction"]] = relationship(
+        "Construction",
+        back_populates="created_by_user",
+    )
+    
+    assigned_constructions: Mapped[list["Construction"]] = relationship(
+        "Construction",
+        secondary="construction_users",
+        back_populates="assigned_users",
+    )
+    
+    progress_entries: Mapped[list["ConstructionProgress"]] = relationship(
+        "ConstructionProgress",
+        back_populates="registered_by_user",
+    )
+    
+    uploaded_bim_references: Mapped[list["BIMReference"]] = relationship(
+        "BIMReference",
+        back_populates="uploaded_by_user",
+    )
+
+

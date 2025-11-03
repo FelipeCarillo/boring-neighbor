@@ -1,5 +1,6 @@
-from .construction_repo import ConstructionRepo
-from .construction_repo_interface import IConstructionRepo
-from .construction_repo_mock import ConstructionRepoMock
+from src.repositories.repositories.construction_repo.construction_repo import ConstructionRepository
+from src.repositories.repositories.construction_repo.construction_repo_interface import ConstructionRepositoryInterface
 
-__all__ = ["ConstructionRepo", "ConstructionRepoMock", "IConstructionRepo"]
+__all__ = ["ConstructionRepository", "ConstructionRepositoryInterface"]
+
+

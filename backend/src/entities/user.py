@@ -1,59 +1,68 @@
+from pydantic import EmailStr, Field, field_validator
 from typing import Optional
-from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from src.entities.base import BaseEntity, BaseResponse
+from src.helpers.enums import UserRole
 
 
-class User(BaseModel):
-    """User entity representing a user in the system with role-based access."""
-
-    id: str = Field(..., description="Unique identifier for the user")
-    email: str = Field(..., description="User's email address")
-    name: str = Field(..., description="User's full name")
-    avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
-    role: str = Field(..., description="User's role in the system")
-
-    @field_validator('role')
+class UserCreate(BaseEntity):
+    """
+    Request model for creating a new user.
+    """
+    
+    registro: str = Field(..., min_length=7, max_length=7, pattern="^[0-9]{7}$")
+    password: str = Field(..., min_length=6)
+    name: str = Field(..., min_length=1, max_length=255)
+    email: EmailStr
+    role: UserRole
+    
+    @field_validator("registro")
     @classmethod
-    def validate_role(cls, v):
-        allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
-        if v not in allowed_roles:
-            raise ValueError(f'Role must be one of: {allowed_roles}')
+    def validate_registro(cls, v: str) -> str:
+        if not v.isdigit():
+            raise ValueError("Registro must contain only digits")
         return v
 
 
-class UserCreate(BaseModel):
-    """Schema for creating a new user."""
-
-    email: str = Field(..., description="User's email address")
-    name: str = Field(..., description="User's full name")
-    avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
-    role: str = Field(..., description="User's role in the system")
-    is_active: bool = Field(True, description="Whether the user account is active")
-
-    @field_validator('role')
-    @classmethod
-    def validate_role(cls, v):
-        allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
-        if v not in allowed_roles:
-            raise ValueError(f'Role must be one of: {allowed_roles}')
-        return v
+class UserLogin(BaseEntity):
+    """
+    Request model for user login.
+    """
+    
+    registro: str = Field(..., min_length=7, max_length=7)
+    password: str
 
 
-class UserUpdate(BaseModel):
-    """Schema for updating an existing user."""
+class UserUpdate(BaseEntity):
+    """
+    Request model for updating user information.
+    """
+    
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+    password: Optional[str] = Field(None, min_length=6)
 
-    email: Optional[str] = Field(None, description="User's email address")
-    name: Optional[str] = Field(None, description="User's full name")
-    avatar_key: Optional[str] = Field(None, description="S3 key for user's avatar image")
-    role: Optional[str] = Field(None, description="User's role in the system")
-    is_active: Optional[bool] = Field(None, description="Whether the user account is active")
 
-    @field_validator('role')
-    @classmethod
-    def validate_role(cls, v):
-        if v is not None:
-            allowed_roles = ['admin', 'supervisor', 'worker', 'viewer']
-            if v not in allowed_roles:
-                raise ValueError(f'Role must be one of: {allowed_roles}')
-        return v
+class UserResponse(BaseResponse):
+    """
+    Response model for user data.
+    """
+    
+    registro: str
+    name: str
+    email: str
+    role: UserRole
+
+
+class TokenResponse(BaseEntity):
+    """
+    Response model for authentication tokens.
+    """
+    
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+

@@ -1,43 +1,47 @@
 from enum import Enum
 
 
-class STAGE(str, Enum):
-    """Enum for stages."""
-    LOCAL = "local"
-    DEV = "dev"
-    UAT = "uat"
-    PROD = "prod"
-
-
-class ConstructionPhase(str, Enum):
-    """Enum for construction phases."""
-    PLANNING = "planning"
-    FOUNDATION = "foundation"
-    STRUCTURE = "structure"
-    FINISHING = "finishing"
-    INSPECTION = "inspection"
-    COMPLETED = "completed"
+class UserRole(str, Enum):
+    """
+    User role types in the system.
+    """
+    
+    ADMIN = "ADMIN"
+    SUPERVISOR = "SUPERVISOR"
+    OPERADOR = "OPERADOR"
 
 
 class ConstructionStatus(str, Enum):
-    """Enum for construction status."""
-    PLANNED = "planned"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
+    """
+    Construction status types.
+    """
+    
+    PLANNED = "PLANNED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
 
 
-class ApprovalStatus(str, Enum):
-    """Enum for approval status."""
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
+class PhaseStatus(str, Enum):
+    """
+    Construction phase status types.
+    """
+    
+    PENDING = "PENDING"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
 
 
-class UserPermission(str, Enum):
-    """Enum for user permissions on constructions."""
-    VIEW = "view"
-    EDIT = "edit"
-    DELETE = "delete"
-    APPROVE = "approve"
-    MANAGE_USERS = "manage_users"
+class StandardPhase(str, Enum):
+    """
+    Standard construction phases for Metro SP projects.
+    """
+    
+    FUNDACAO = "Fundação"
+    ESTRUTURA = "Estrutura"
+    ALVENARIA = "Alvenaria"
+    INSTALACOES = "Instalações"
+    ACABAMENTO = "Acabamento"
+    FINALIZACAO = "Finalização"
+
+

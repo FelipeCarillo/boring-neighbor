@@ -1,3 +1,5 @@
-from .view import construction_router
+from src.router.constructions.router import router
 
-__all__ = ["construction_router"]
+__all__ = ["router"]
+
+

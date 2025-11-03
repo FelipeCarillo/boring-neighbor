@@ -1,57 +1,112 @@
-from typing import Optional, List
-from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from typing import Optional
+from sqlalchemy.orm import Session, joinedload
 
-from repositories.models.construction import ConstructionProgress
-from repositories.repositories.construction_progress_repo.construction_progress_repo_interface import IConstructionProgressRepo
+from src.repositories.models.construction import ConstructionProgress
+from src.repositories.repositories.construction_progress_repo.construction_progress_repo_interface import ConstructionProgressRepositoryInterface
 
 
-class ConstructionProgressRepo(IConstructionProgressRepo):
-
-    def __init__(self, session: Session):
-        self.session = session
-
-    def get_progress_by_id(self, id: str) -> Optional[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(ConstructionProgress.id == id).first()
-
-    def create_progress(self, progress: ConstructionProgress) -> ConstructionProgress:
-        self.session.add(progress)
-        self.session.commit()
+class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
+    """
+    SQLAlchemy implementation of ConstructionProgress repository.
+    """
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def create(
+        self,
+        construction_id: str,
+        registered_by: str,
+        s3_photo_key: str,
+        phase_id: Optional[str] = None,
+        notes: Optional[str] = None,
+        deviation_score: Optional[float] = None,
+    ) -> ConstructionProgress:
+        """
+        Create a new progress entry.
+        """
+        progress = ConstructionProgress(
+            construction_id=construction_id,
+            phase_id=phase_id,
+            s3_photo_key=s3_photo_key,
+            registered_by=registered_by,
+            notes=notes,
+            deviation_score=deviation_score,
+        )
+        self.db.add(progress)
+        self.db.commit()
+        self.db.refresh(progress)
         return progress
-
-    def update_progress(self, progress: ConstructionProgress) -> ConstructionProgress:
-        self.session.commit()
+    
+    def get_by_id(self, progress_id: str) -> Optional[ConstructionProgress]:
+        """
+        Get progress by ID with relationships.
+        """
+        return self.db.query(ConstructionProgress).options(
+            joinedload(ConstructionProgress.registered_by_user),
+            joinedload(ConstructionProgress.phase),
+        ).filter(
+            ConstructionProgress.id == progress_id,
+            ConstructionProgress.deleted_at.is_(None),
+        ).first()
+    
+    def list_by_construction(self, construction_id: str) -> list[ConstructionProgress]:
+        """
+        List all progress entries for a construction.
+        """
+        return self.db.query(ConstructionProgress).options(
+            joinedload(ConstructionProgress.registered_by_user),
+            joinedload(ConstructionProgress.phase),
+        ).filter(
+            ConstructionProgress.construction_id == construction_id,
+            ConstructionProgress.deleted_at.is_(None),
+        ).order_by(ConstructionProgress.created_at.desc()).all()
+    
+    def list_by_phase(self, phase_id: str) -> list[ConstructionProgress]:
+        """
+        List all progress entries for a specific phase.
+        """
+        return self.db.query(ConstructionProgress).options(
+            joinedload(ConstructionProgress.registered_by_user),
+        ).filter(
+            ConstructionProgress.phase_id == phase_id,
+            ConstructionProgress.deleted_at.is_(None),
+        ).order_by(ConstructionProgress.created_at.desc()).all()
+    
+    def update(self, progress_id: str, **kwargs) -> Optional[ConstructionProgress]:
+        """
+        Update progress fields.
+        """
+        progress = self.get_by_id(progress_id)
+        if not progress:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(progress, key):
+                setattr(progress, key, value)
+        
+        self.db.commit()
+        self.db.refresh(progress)
         return progress
+    
+    def list_without_deviation_score(
+        self,
+        construction_id: str,
+        phase_id: Optional[str] = None,
+    ) -> list[ConstructionProgress]:
+        """
+        List progress entries without deviation scores.
+        Used for retroactive calculation when BIM is uploaded.
+        """
+        query = self.db.query(ConstructionProgress).filter(
+            ConstructionProgress.construction_id == construction_id,
+            ConstructionProgress.deviation_score.is_(None),
+            ConstructionProgress.deleted_at.is_(None),
+        )
+        
+        if phase_id:
+            query = query.filter(ConstructionProgress.phase_id == phase_id)
+        
+        return query.all()
 
-    def delete_progress(self, id: str) -> None:
-        progress = self.get_progress_by_id(id)
-        if progress:
-            self.session.delete(progress)
-            self.session.commit()
 
-    def list_progress_by_construction(self, construction_id: str) -> List[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(
-            ConstructionProgress.construction_id == construction_id
-        ).order_by(desc(ConstructionProgress.created_at)).all()
-
-    def list_progress_by_recorder(self, recorder_id: str) -> List[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(
-            ConstructionProgress.recorded_by == recorder_id
-        ).order_by(desc(ConstructionProgress.created_at)).all()
-
-    def list_progress_by_phase(self, phase: str) -> List[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(
-            ConstructionProgress.phase == phase
-        ).order_by(desc(ConstructionProgress.created_at)).all()
-
-    def get_progress_by_date_range(self, start_date: datetime, end_date: datetime) -> List[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(
-            ConstructionProgress.created_at >= start_date,
-            ConstructionProgress.created_at <= end_date
-        ).order_by(desc(ConstructionProgress.created_at)).all()
-
-    def get_latest_progress_by_construction(self, construction_id: str) -> Optional[ConstructionProgress]:
-        return self.session.query(ConstructionProgress).filter(
-            ConstructionProgress.construction_id == construction_id
-        ).order_by(desc(ConstructionProgress.created_at)).first()

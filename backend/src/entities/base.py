@@ -1,31 +1,22 @@
-from datetime import datetime, timezone
-from typing import Optional
-from uuid import UUID
-
-from pydantic import BaseModel, Field
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict
 
 
-class TimestampMixin(BaseModel):
-    """Mixin to add timestamp fields to entities."""
+class BaseEntity(BaseModel):
+    """
+    Base Pydantic model for all entities.
+    """
     
-    created_by_user_id: Optional[UUID] = Field(None, description="ID of the user who created the record")
-    updated_by_user_id: Optional[UUID] = Field(None, description="ID of the user who last updated the record")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Timestamp when the record was created")
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Timestamp when the record was last updated")
+    model_config = ConfigDict(from_attributes=True)
 
 
-class SoftDeleteMixin(BaseModel):
-    """Mixin to add soft delete functionality to entities."""
+class BaseResponse(BaseEntity):
+    """
+    Base response model with common fields.
+    """
     
-    is_deleted: bool = Field(False, description="Whether the record is soft deleted")
+    id: str
+    created_at: datetime
+    updated_at: datetime
 
 
-class BaseEntity(TimestampMixin, SoftDeleteMixin):
-    """Base class for all entities."""
-    
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v)
-        }

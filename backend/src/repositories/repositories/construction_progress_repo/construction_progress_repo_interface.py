@@ -1,43 +1,44 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
-from datetime import datetime
+from typing import Optional
 
-from repositories.models.construction import ConstructionProgress
+from src.repositories.models.construction import ConstructionProgress
 
 
-class IConstructionProgressRepo(ABC):
+class ConstructionProgressRepositoryInterface(ABC):
+    """
+    Interface for ConstructionProgress repository operations.
+    """
+    
     @abstractmethod
-    def get_progress_by_id(self, id: str) -> Optional[ConstructionProgress]:
+    def create(
+        self,
+        construction_id: str,
+        registered_by: str,
+        s3_photo_key: str,
+        phase_id: Optional[str] = None,
+        notes: Optional[str] = None,
+        deviation_score: Optional[float] = None,
+    ) -> ConstructionProgress:
+        pass
+    
+    @abstractmethod
+    def get_by_id(self, progress_id: str) -> Optional[ConstructionProgress]:
+        pass
+    
+    @abstractmethod
+    def list_by_construction(self, construction_id: str) -> list[ConstructionProgress]:
+        pass
+    
+    @abstractmethod
+    def list_by_phase(self, phase_id: str) -> list[ConstructionProgress]:
+        pass
+    
+    @abstractmethod
+    def update(self, progress_id: str, **kwargs) -> Optional[ConstructionProgress]:
+        pass
+    
+    @abstractmethod
+    def list_without_deviation_score(self, construction_id: str, phase_id: Optional[str] = None) -> list[ConstructionProgress]:
         pass
 
-    @abstractmethod
-    def create_progress(self, progress: ConstructionProgress) -> ConstructionProgress:
-        pass
 
-    @abstractmethod
-    def update_progress(self, progress: ConstructionProgress) -> ConstructionProgress:
-        pass
-
-    @abstractmethod
-    def delete_progress(self, id: str) -> None:
-        pass
-
-    @abstractmethod
-    def list_progress_by_construction(self, construction_id: str) -> List[ConstructionProgress]:
-        pass
-
-    @abstractmethod
-    def list_progress_by_recorder(self, recorder_id: str) -> List[ConstructionProgress]:
-        pass
-
-    @abstractmethod
-    def list_progress_by_phase(self, phase: str) -> List[ConstructionProgress]:
-        pass
-
-    @abstractmethod
-    def get_progress_by_date_range(self, start_date: datetime, end_date: datetime) -> List[ConstructionProgress]:
-        pass
-
-    @abstractmethod
-    def get_latest_progress_by_construction(self, construction_id: str) -> Optional[ConstructionProgress]:
-        pass

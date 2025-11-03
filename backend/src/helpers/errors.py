@@ -1,78 +1,71 @@
-from abc import abstractmethod, ABC
-from functools import wraps
-from typing import Optional, Callable, Any, TypeVar
-
-from fastapi import HTTPException
-from pydantic import BaseModel
+from typing import Any
+from fastapi import HTTPException, status
 
 
-
-T = TypeVar('T')
-
-
-class UntreatedError(Exception):
-    """Exception that can be handled by the client notification system."""
-
-    def __init__(self, message: str, user_email: str):
-        super().__init__(message)
-        self.user_email = user_email
-
-
-class ClientNotificationResponse(BaseModel):
-    """Response model for client notifications."""
-    success: bool
-    message: Optional[str] = None
-
-
-class IClientNotification(ABC):
-    """Interface for client notification services."""
-
-    @abstractmethod
-    def notify(self, error: UntreatedError) -> ClientNotificationResponse:
-        """Notify the client about an error."""
-        pass
-
-
-class ExceptionHandler:
-    """Handles exceptions and processes them through client notifications."""
-
-    def __init__(self, client_notification: IClientNotification):
-        self.client_notification = client_notification
-
-    def process_exception(self, e: Exception) -> None:
-        """Process an exception and return client notification response if applicable."""
-        if not isinstance(e, UntreatedError):
-            return
-        response = self.client_notification.notify(e)
-        if not response.success:
-            pass
-
-
-def handle_exception(func: Callable[..., T], *, handler: Optional[ExceptionHandler] = None) -> Callable[..., T]:
+class AppException(HTTPException):
     """
-    Decorator to handle exceptions in FastAPI endpoints.
+    Base application exception.
+    """
     
-    Args:
-        func: The function to be decorated
-        handler: Optional ExceptionHandler to process exceptions
-        
-    Returns:
-        Decorated function that handles exceptions automatically
+    def __init__(
+        self,
+        status_code: int,
+        detail: str,
+        headers: dict[str, Any] | None = None,
+    ):
+        super().__init__(status_code=status_code, detail=detail, headers=headers)
+
+
+class UnauthorizedException(AppException):
     """
+    Raised when user authentication fails.
+    """
+    
+    def __init__(self, detail: str = "Unauthorized"):
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
 
-    def decorator() -> Callable[..., T]:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> T:
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                print(e)
-                if isinstance(e, HTTPException):
-                    return e
-                if handler:
-                    handler.process_exception(e)
-                return HTTPException(status_code=500, detail="Internal Server Error, our team has been notified.")
 
-        return wrapper
+class ForbiddenException(AppException):
+    """
+    Raised when user doesn't have permission for the action.
+    """
+    
+    def __init__(self, detail: str = "Forbidden"):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
 
-    return decorator
+
+class NotFoundException(AppException):
+    """
+    Raised when a resource is not found.
+    """
+    
+    def __init__(self, detail: str = "Resource not found"):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+
+class BadRequestException(AppException):
+    """
+    Raised when request validation fails.
+    """
+    
+    def __init__(self, detail: str = "Bad request"):
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
+class ConflictException(AppException):
+    """
+    Raised when there's a conflict with existing data.
+    """
+    
+    def __init__(self, detail: str = "Conflict"):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+
+class InternalServerException(AppException):
+    """
+    Raised when an internal server error occurs.
+    """
+    
+    def __init__(self, detail: str = "Internal server error"):
+        super().__init__(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail)
+

@@ -1,100 +1,226 @@
-from sqlalchemy import Column, String, DateTime, UUID, Text, Float, Integer, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from datetime import datetime
+from sqlalchemy import String, Text, Date, ForeignKey, Table, Column, Enum as SQLEnum, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING
 
-from .base import BaseModel
+from src.repositories.models.base import BaseModel, Base
+from src.helpers.enums import ConstructionStatus, PhaseStatus
+
+if TYPE_CHECKING:
+    from src.repositories.models.user import User
+
+
+construction_users = Table(
+    "construction_users",
+    Base.metadata,
+    Column("construction_id", String(36), ForeignKey("constructions.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", String(36), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class Construction(BaseModel):
-    """Construction model representing a construction project for progress tracking."""
-
-    __tablename__ = 'constructions'
-
-    id = Column(UUID, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-    location = Column(String, nullable=True)
-    start_date = Column(DateTime, nullable=True)
-    end_date = Column(DateTime, nullable=True)
-    status = Column(String, nullable=False, default='planned')  # planned, in_progress, completed, cancelled
-
-    # Progress tracking fields
-    current_phase = Column(String, nullable=True)  # foundation, structure, finishing, etc.
-    progress_percentage = Column(Float, nullable=False, default=0.0)  # 0.0 to 100.0
-    assigned_supervisor_id = Column(String, nullable=True, index=True)  # UUID from User model
-
-    # S3 integration for progress photos and documents
-    s3_folder_key = Column(String, nullable=True)
-
-    # Relationships
-    progress_records = relationship("ConstructionProgress", back_populates="construction", cascade="all, delete-orphan")
-    approvals = relationship("ConstructionApproval", back_populates="construction", cascade="all, delete-orphan")
-    assigned_supervisor = relationship("User", back_populates="supervised_constructions",
-                                       foreign_keys=[assigned_supervisor_id])
-
-
-class ConstructionProgress(BaseModel):
-    """ConstructionProgress model for tracking daily/weekly construction progress."""
-
-    __tablename__ = 'construction_progress'
-
-    id = Column(UUID, primary_key=True)
-    construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
-    recorded_by = Column(String, nullable=False, index=True)  # UUID from User model
-
-    progress_percentage = Column(Float, nullable=False, default=0.0)  # 0.0 to 100.0
-    phase = Column(String, nullable=False)
-
-    workers_count = Column(Integer, nullable=True)
-    hours_worked = Column(Float, nullable=True)
-
-    progress_photos_count = Column(Integer, nullable=False, default=0)
-    s3_photos_key = Column(String, nullable=True)  # S3 key for progress photos
-
-    notes = Column(Text, nullable=True)
-    issues_identified = Column(Text, nullable=True)
-    weather_conditions = Column(String, nullable=True)  # sunny, rainy, cloudy, etc.
-
-    # Relationships
-    construction = relationship("Construction", back_populates="progress_records")
-    recorder = relationship("User", back_populates="progress_records")
+    """
+    Construction model representing a Metro SP construction project.
+    """
+    
+    __tablename__ = "constructions"
+    
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    location: Mapped[str] = mapped_column(String(255), nullable=False)
+    start_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    end_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
+    status: Mapped[ConstructionStatus] = mapped_column(
+        SQLEnum(ConstructionStatus),
+        default=ConstructionStatus.PLANNED,
+        nullable=False,
+    )
+    created_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    
+    created_by_user: Mapped["User"] = relationship(
+        "User",
+        back_populates="created_constructions",
+        foreign_keys=[created_by],
+    )
+    
+    assigned_users: Mapped[list["User"]] = relationship(
+        "User",
+        secondary=construction_users,
+        back_populates="assigned_constructions",
+    )
+    
+    phases: Mapped[list["ConstructionPhase"]] = relationship(
+        "ConstructionPhase",
+        back_populates="construction",
+        cascade="all, delete-orphan",
+    )
+    
+    bim_references: Mapped[list["BIMReference"]] = relationship(
+        "BIMReference",
+        back_populates="construction",
+        cascade="all, delete-orphan",
+    )
+    
+    progress_entries: Mapped[list["ConstructionProgress"]] = relationship(
+        "ConstructionProgress",
+        back_populates="construction",
+        cascade="all, delete-orphan",
+    )
+    
+    deviation_reports: Mapped[list["DeviationReport"]] = relationship(
+        "DeviationReport",
+        back_populates="construction",
+        cascade="all, delete-orphan",
+    )
 
 
 class ConstructionPhase(BaseModel):
-    """ConstructionPhase model defining the phases of a construction project."""
+    """
+    Construction phase representing different stages of construction.
+    """
+    
+    __tablename__ = "construction_phases"
+    
+    construction_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("constructions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    phase_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[PhaseStatus] = mapped_column(
+        SQLEnum(PhaseStatus),
+        default=PhaseStatus.PENDING,
+        nullable=False,
+    )
+    start_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
+    end_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
+    order: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    construction: Mapped["Construction"] = relationship(
+        "Construction",
+        back_populates="phases",
+    )
+    
+    progress_entries: Mapped[list["ConstructionProgress"]] = relationship(
+        "ConstructionProgress",
+        back_populates="phase",
+    )
+    
+    bim_references: Mapped[list["BIMReference"]] = relationship(
+        "BIMReference",
+        back_populates="phase",
+    )
 
-    __tablename__ = 'construction_phases'
 
-    id = Column(UUID, primary_key=True)
-    name = Column(String, nullable=False, unique=True)  # foundation, structure, finishing, etc.
-    description = Column(Text, nullable=True)
-    order = Column(Integer, nullable=False)  # Order of phases (1, 2, 3...)
-    estimated_duration_days = Column(Integer, nullable=True)
-    is_active = Column(Boolean, nullable=False, default=True)
+class BIMReference(BaseModel):
+    """
+    BIM reference image uploaded for comparison with progress photos.
+    """
+    
+    __tablename__ = "bim_references"
+    
+    construction_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("constructions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    phase_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("construction_phases.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    s3_key: Mapped[str] = mapped_column(String(500), nullable=False)
+    uploaded_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
+    construction: Mapped["Construction"] = relationship(
+        "Construction",
+        back_populates="bim_references",
+    )
+    
+    phase: Mapped["ConstructionPhase | None"] = relationship(
+        "ConstructionPhase",
+        back_populates="bim_references",
+    )
+    
+    uploaded_by_user: Mapped["User"] = relationship(
+        "User",
+        back_populates="uploaded_bim_references",
+    )
 
 
-class ConstructionApproval(BaseModel):
-    """ConstructionApproval model for managing user permissions on construction projects."""
+class ConstructionProgress(BaseModel):
+    """
+    Progress entry with photo registered by users in the field.
+    """
+    
+    __tablename__ = "construction_progress"
+    
+    construction_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("constructions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    phase_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("construction_phases.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    s3_photo_key: Mapped[str] = mapped_column(String(500), nullable=False)
+    registered_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    deviation_score: Mapped[float | None] = mapped_column(nullable=True)
+    
+    construction: Mapped["Construction"] = relationship(
+        "Construction",
+        back_populates="progress_entries",
+    )
+    
+    phase: Mapped["ConstructionPhase | None"] = relationship(
+        "ConstructionPhase",
+        back_populates="progress_entries",
+    )
+    
+    registered_by_user: Mapped["User"] = relationship(
+        "User",
+        back_populates="progress_entries",
+    )
+    
+    deviation_reports: Mapped[list["DeviationReport"]] = relationship(
+        "DeviationReport",
+        back_populates="progress",
+        cascade="all, delete-orphan",
+    )
 
-    __tablename__ = 'construction_approvals'
 
-    id = Column(UUID, primary_key=True)
-    construction_id = Column(String, ForeignKey('constructions.id'), nullable=False, index=True)
-    user_id = Column(String, ForeignKey('users.id'), nullable=False, index=True)  # User being granted permissions
-    approver_id = Column(String, nullable=False, index=True)  # User who approved the permissions
-    status = Column(String, nullable=False, default='pending')  # pending, approved, rejected
+class DeviationReport(BaseModel):
+    """
+    AI-generated deviation report comparing BIM with progress photos.
+    """
+    
+    __tablename__ = "deviation_reports"
+    
+    construction_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("constructions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    progress_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("construction_progress.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    deviation_score: Mapped[float | None] = mapped_column(nullable=True)
+    ai_analysis: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
+    construction: Mapped["Construction"] = relationship(
+        "Construction",
+        back_populates="deviation_reports",
+    )
+    
+    progress: Mapped["ConstructionProgress | None"] = relationship(
+        "ConstructionProgress",
+        back_populates="deviation_reports",
+    )
 
-    # Permissions granted to the user
-    can_view = Column(Boolean, nullable=False, default=False)
-    can_edit = Column(Boolean, nullable=False, default=False)
-    can_delete = Column(Boolean, nullable=False, default=False)
-    can_approve = Column(Boolean, nullable=False, default=False)
-    can_manage_users = Column(Boolean, nullable=False, default=False)
 
-    # Additional metadata
-    comments = Column(Text, nullable=True)
-    expires_at = Column(DateTime, nullable=True)  # Optional expiration date for permissions
-
-    # Relationships
-    construction = relationship("Construction", back_populates="approvals")
-    user = relationship("User", foreign_keys=[user_id], back_populates="construction_permissions")
-    approver = relationship("User", foreign_keys=[approver_id], back_populates="construction_approvals")

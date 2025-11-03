@@ -1,5 +1,6 @@
-from .user_repo import UserRepo
-from .user_repo_interface import IUserRepo
-from .user_repo_mock import UserRepoMock
+from src.repositories.repositories.user_repo.user_repo import UserRepository
+from src.repositories.repositories.user_repo.user_repo_interface import UserRepositoryInterface
 
-__all__ = ["UserRepo", "UserRepoMock", "IUserRepo"]
+__all__ = ["UserRepository", "UserRepositoryInterface"]
+
+

@@ -1,5 +1,6 @@
-from .construction_progress_repo import ConstructionProgressRepo
-from .construction_progress_repo_interface import IConstructionProgressRepo
-from .construction_progress_repo_mock import ConstructionProgressRepoMock
+from src.repositories.repositories.construction_progress_repo.construction_progress_repo import ConstructionProgressRepository
+from src.repositories.repositories.construction_progress_repo.construction_progress_repo_interface import ConstructionProgressRepositoryInterface
 
-__all__ = ["ConstructionProgressRepo", "ConstructionProgressRepoMock", "IConstructionProgressRepo"]
+__all__ = ["ConstructionProgressRepository", "ConstructionProgressRepositoryInterface"]
+
+

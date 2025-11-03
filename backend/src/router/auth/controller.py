@@ -1,21 +1,36 @@
-from typing import Dict, Any
+from sqlalchemy.orm import Session
 
-from .service import AuthService
-from .models import AuthResponse, UserResponse, TokenFormData, TokenRefreshFormData
+from src.entities.user import UserLogin, TokenResponse, UserResponse
+from src.router.auth.service import AuthService
+from src.repositories.models.user import User
 
 
 class AuthController:
-    def __init__(self, service: AuthService):
-        self.service = service
+    """
+    Controller layer for authentication endpoints.
+    """
+    
+    @staticmethod
+    def login(login_data: UserLogin, db: Session) -> TokenResponse:
+        """
+        Authenticate user and return JWT tokens.
+        """
+        service = AuthService(db)
+        return service.login(login_data)
+    
+    @staticmethod
+    def refresh_token(refresh_token: str, db: Session) -> TokenResponse:
+        """
+        Refresh access token using refresh token.
+        """
+        service = AuthService(db)
+        return service.refresh_token(refresh_token)
+    
+    @staticmethod
+    def get_me(current_user: User) -> UserResponse:
+        """
+        Get current authenticated user information.
+        """
+        return UserResponse.model_validate(current_user)
 
-    async def token(self, data: TokenFormData) -> AuthResponse:
-        """Exchange authorization code for access token."""
-        return await self.service.token(data)
 
-    async def token_refresh(self, data: TokenRefreshFormData) -> AuthResponse:
-        """Refresh access token using refresh token."""
-        return await self.service.token_refresh(data)
-
-    async def me(self, user_id: str) -> UserResponse:
-        """Get current user information."""
-        return await self.service.me(user_id)

@@ -1,38 +1,107 @@
-from typing import Optional, List
+from datetime import datetime
+from typing import Optional
 from sqlalchemy.orm import Session
 
-from repositories.models.user import User
-from .user_repo_interface import IUserRepo
+from src.repositories.models.user import User
+from src.repositories.repositories.user_repo.user_repo_interface import UserRepositoryInterface
+from src.helpers.enums import UserRole
 
 
-class UserRepo(IUserRepo):
-
-    def __init__(self, session: Session):
-        self.session = session
-
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        return self.session.query(User).filter(User.email == email).first()
-
-    def get_user_by_id(self, id: str) -> Optional[User]:
-        return self.session.query(User).filter(User.id == id).first()
+class UserRepository(UserRepositoryInterface):
+    """
+    SQLAlchemy implementation of User repository.
+    """
     
-    def create_user(self, user: User) -> User:
-        self.session.add(user)
-        self.session.commit()
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def create(
+        self,
+        registro: str,
+        password_hash: str,
+        name: str,
+        email: str,
+        role: UserRole,
+    ) -> User:
+        """
+        Create a new user in the database.
+        """
+        user = User(
+            registro=registro,
+            password_hash=password_hash,
+            name=name,
+            email=email,
+            role=role,
+        )
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
         return user
-
-    def update_user(self, user: User) -> User:
-        self.session.commit()
+    
+    def get_by_id(self, user_id: str) -> Optional[User]:
+        """
+        Get user by ID, excluding soft-deleted users.
+        """
+        return self.db.query(User).filter(
+            User.id == user_id,
+            User.deleted_at.is_(None),
+        ).first()
+    
+    def get_by_registro(self, registro: str) -> Optional[User]:
+        """
+        Get user by registro, excluding soft-deleted users.
+        """
+        return self.db.query(User).filter(
+            User.registro == registro,
+            User.deleted_at.is_(None),
+        ).first()
+    
+    def get_by_email(self, email: str) -> Optional[User]:
+        """
+        Get user by email, excluding soft-deleted users.
+        """
+        return self.db.query(User).filter(
+            User.email == email,
+            User.deleted_at.is_(None),
+        ).first()
+    
+    def list_all(self, include_deleted: bool = False) -> list[User]:
+        """
+        List all users.
+        """
+        query = self.db.query(User)
+        
+        if not include_deleted:
+            query = query.filter(User.deleted_at.is_(None))
+        
+        return query.all()
+    
+    def update(self, user_id: str, **kwargs) -> Optional[User]:
+        """
+        Update user fields.
+        """
+        user = self.get_by_id(user_id)
+        if not user:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(user, key) and value is not None:
+                setattr(user, key, value)
+        
+        self.db.commit()
+        self.db.refresh(user)
         return user
     
-    def delete_user(self, id: str) -> None:
-        user = self.get_user_by_id(id)
-        if user:
-            self.session.delete(user)
-            self.session.commit()
+    def soft_delete(self, user_id: str) -> bool:
+        """
+        Soft delete a user by setting deleted_at timestamp.
+        """
+        user = self.get_by_id(user_id)
+        if not user:
+            return False
+        
+        user.deleted_at = datetime.utcnow()
+        self.db.commit()
+        return True
 
-    def list_users(self) -> List[User]:
-        return self.session.query(User).all()
-    
-    def get_user_by_cognito_user_id(self, cognito_user_id: str) -> Optional[User]:
-        return self.session.query(User).filter(User.cognito_user_id == cognito_user_id).first()
+

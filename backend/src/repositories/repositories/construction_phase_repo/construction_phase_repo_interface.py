@@ -1,38 +1,42 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from datetime import date
+from typing import Optional
 
-from repositories.models.construction import ConstructionPhase
+from src.repositories.models.construction import ConstructionPhase
+from src.helpers.enums import PhaseStatus
 
 
-class IConstructionPhaseRepo(ABC):
+class ConstructionPhaseRepositoryInterface(ABC):
+    """
+    Interface for ConstructionPhase repository operations.
+    """
+    
     @abstractmethod
-    def get_phase_by_id(self, id: str) -> Optional[ConstructionPhase]:
+    def create(
+        self,
+        construction_id: str,
+        phase_name: str,
+        order: int,
+        status: PhaseStatus = PhaseStatus.PENDING,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+    ) -> ConstructionPhase:
+        pass
+    
+    @abstractmethod
+    def get_by_id(self, phase_id: str) -> Optional[ConstructionPhase]:
+        pass
+    
+    @abstractmethod
+    def list_by_construction(self, construction_id: str) -> list[ConstructionPhase]:
+        pass
+    
+    @abstractmethod
+    def update(self, phase_id: str, **kwargs) -> Optional[ConstructionPhase]:
+        pass
+    
+    @abstractmethod
+    def delete(self, phase_id: str) -> bool:
         pass
 
-    @abstractmethod
-    def get_phase_by_name(self, name: str) -> Optional[ConstructionPhase]:
-        pass
 
-    @abstractmethod
-    def create_phase(self, phase: ConstructionPhase) -> ConstructionPhase:
-        pass
-
-    @abstractmethod
-    def update_phase(self, phase: ConstructionPhase) -> ConstructionPhase:
-        pass
-
-    @abstractmethod
-    def delete_phase(self, id: str) -> None:
-        pass
-
-    @abstractmethod
-    def list_phases(self) -> List[ConstructionPhase]:
-        pass
-
-    @abstractmethod
-    def list_active_phases(self) -> List[ConstructionPhase]:
-        pass
-
-    @abstractmethod
-    def get_phases_by_order(self) -> List[ConstructionPhase]:
-        pass
