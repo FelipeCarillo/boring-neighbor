@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
 
 from src.repositories.models.base import BaseModel, Base
-from src.helpers.enums import ConstructionStatus, PhaseStatus
+from src.helpers.enums import ConstructionStatus
 
 if TYPE_CHECKING:
     from src.repositories.models.user import User
@@ -37,6 +37,11 @@ class Construction(BaseModel):
     )
     created_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
     
+    model_3d_s3_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    model_3d_file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    model_3d_file_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    model_3d_file_type: Mapped[str | None] = mapped_column(String(10), nullable=True)  # obj, gltf, glb, fbx
+    
     created_by_user: Mapped["User"] = relationship(
         "User",
         back_populates="created_constructions",
@@ -49,14 +54,14 @@ class Construction(BaseModel):
         back_populates="assigned_constructions",
     )
     
-    phases: Mapped[list["ConstructionPhase"]] = relationship(
-        "ConstructionPhase",
+    bim_references: Mapped[list["BIMReference"]] = relationship(
+        "BIMReference",
         back_populates="construction",
         cascade="all, delete-orphan",
     )
     
-    bim_references: Mapped[list["BIMReference"]] = relationship(
-        "BIMReference",
+    bim_models: Mapped[list["BIMModel"]] = relationship(
+        "BIMModel",
         back_populates="construction",
         cascade="all, delete-orphan",
     )
@@ -74,44 +79,6 @@ class Construction(BaseModel):
     )
 
 
-class ConstructionPhase(BaseModel):
-    """
-    Construction phase representing different stages of construction.
-    """
-    
-    __tablename__ = "construction_phases"
-    
-    construction_id: Mapped[str] = mapped_column(
-        String(36),
-        ForeignKey("constructions.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    phase_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    status: Mapped[PhaseStatus] = mapped_column(
-        SQLEnum(PhaseStatus),
-        default=PhaseStatus.PENDING,
-        nullable=False,
-    )
-    start_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
-    end_date: Mapped[datetime | None] = mapped_column(Date, nullable=True)
-    order: Mapped[int] = mapped_column(Integer, nullable=False)
-    
-    construction: Mapped["Construction"] = relationship(
-        "Construction",
-        back_populates="phases",
-    )
-    
-    progress_entries: Mapped[list["ConstructionProgress"]] = relationship(
-        "ConstructionProgress",
-        back_populates="phase",
-    )
-    
-    bim_references: Mapped[list["BIMReference"]] = relationship(
-        "BIMReference",
-        back_populates="phase",
-    )
-
-
 class BIMReference(BaseModel):
     """
     BIM reference image uploaded for comparison with progress photos.
@@ -124,11 +91,6 @@ class BIMReference(BaseModel):
         ForeignKey("constructions.id", ondelete="CASCADE"),
         nullable=False,
     )
-    phase_id: Mapped[str | None] = mapped_column(
-        String(36),
-        ForeignKey("construction_phases.id", ondelete="SET NULL"),
-        nullable=True,
-    )
     s3_key: Mapped[str] = mapped_column(String(500), nullable=False)
     uploaded_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -138,14 +100,44 @@ class BIMReference(BaseModel):
         back_populates="bim_references",
     )
     
-    phase: Mapped["ConstructionPhase | None"] = relationship(
-        "ConstructionPhase",
-        back_populates="bim_references",
+    uploaded_by_user: Mapped["User"] = relationship(
+        "User",
+        back_populates="uploaded_bim_references",
+    )
+    
+    progress_entries: Mapped[list["ConstructionProgress"]] = relationship(
+        "ConstructionProgress",
+        back_populates="bim_reference",
+        cascade="all, delete-orphan",
+    )
+
+
+class BIMModel(BaseModel):
+    """
+    BIM model file (.ifc) uploaded for 3D visualization.
+    """
+    
+    __tablename__ = "bim_models"
+    
+    construction_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("constructions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    s3_key: Mapped[str] = mapped_column(String(500), nullable=False)
+    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    file_size: Mapped[int] = mapped_column(nullable=False)
+    uploaded_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
+    construction: Mapped["Construction"] = relationship(
+        "Construction",
+        back_populates="bim_models",
     )
     
     uploaded_by_user: Mapped["User"] = relationship(
         "User",
-        back_populates="uploaded_bim_references",
+        back_populates="uploaded_bim_models",
     )
 
 
@@ -161,10 +153,10 @@ class ConstructionProgress(BaseModel):
         ForeignKey("constructions.id", ondelete="CASCADE"),
         nullable=False,
     )
-    phase_id: Mapped[str | None] = mapped_column(
+    bim_reference_id: Mapped[str] = mapped_column(
         String(36),
-        ForeignKey("construction_phases.id", ondelete="SET NULL"),
-        nullable=True,
+        ForeignKey("bim_references.id", ondelete="CASCADE"),
+        nullable=False,
     )
     s3_photo_key: Mapped[str] = mapped_column(String(500), nullable=False)
     registered_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
@@ -176,8 +168,8 @@ class ConstructionProgress(BaseModel):
         back_populates="progress_entries",
     )
     
-    phase: Mapped["ConstructionPhase | None"] = relationship(
-        "ConstructionPhase",
+    bim_reference: Mapped["BIMReference"] = relationship(
+        "BIMReference",
         back_populates="progress_entries",
     )
     

@@ -13,9 +13,9 @@ class ConstructionProgressRepositoryInterface(ABC):
     def create(
         self,
         construction_id: str,
+        bim_reference_id: str,
         registered_by: str,
         s3_photo_key: str,
-        phase_id: Optional[str] = None,
         notes: Optional[str] = None,
         deviation_score: Optional[float] = None,
     ) -> ConstructionProgress:
@@ -30,15 +30,15 @@ class ConstructionProgressRepositoryInterface(ABC):
         pass
     
     @abstractmethod
-    def list_by_phase(self, phase_id: str) -> list[ConstructionProgress]:
-        pass
-    
-    @abstractmethod
     def update(self, progress_id: str, **kwargs) -> Optional[ConstructionProgress]:
         pass
     
     @abstractmethod
-    def list_without_deviation_score(self, construction_id: str, phase_id: Optional[str] = None) -> list[ConstructionProgress]:
+    def list_by_bim_reference(self, bim_reference_id: str) -> list[ConstructionProgress]:
+        pass
+    
+    @abstractmethod
+    def list_without_deviation_score(self, construction_id: str) -> list[ConstructionProgress]:
         pass
 
 

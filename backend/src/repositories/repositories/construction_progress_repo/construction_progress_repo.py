@@ -16,9 +16,9 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
     def create(
         self,
         construction_id: str,
+        bim_reference_id: str,
         registered_by: str,
         s3_photo_key: str,
-        phase_id: Optional[str] = None,
         notes: Optional[str] = None,
         deviation_score: Optional[float] = None,
     ) -> ConstructionProgress:
@@ -27,7 +27,7 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
         """
         progress = ConstructionProgress(
             construction_id=construction_id,
-            phase_id=phase_id,
+            bim_reference_id=bim_reference_id,
             s3_photo_key=s3_photo_key,
             registered_by=registered_by,
             notes=notes,
@@ -44,7 +44,7 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
         """
         return self.db.query(ConstructionProgress).options(
             joinedload(ConstructionProgress.registered_by_user),
-            joinedload(ConstructionProgress.phase),
+            joinedload(ConstructionProgress.bim_reference),
         ).filter(
             ConstructionProgress.id == progress_id,
             ConstructionProgress.deleted_at.is_(None),
@@ -56,20 +56,21 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
         """
         return self.db.query(ConstructionProgress).options(
             joinedload(ConstructionProgress.registered_by_user),
-            joinedload(ConstructionProgress.phase),
+            joinedload(ConstructionProgress.bim_reference),
         ).filter(
             ConstructionProgress.construction_id == construction_id,
             ConstructionProgress.deleted_at.is_(None),
         ).order_by(ConstructionProgress.created_at.desc()).all()
     
-    def list_by_phase(self, phase_id: str) -> list[ConstructionProgress]:
+    def list_by_bim_reference(self, bim_reference_id: str) -> list[ConstructionProgress]:
         """
-        List all progress entries for a specific phase.
+        List all progress entries for a specific BIM reference.
         """
         return self.db.query(ConstructionProgress).options(
             joinedload(ConstructionProgress.registered_by_user),
+            joinedload(ConstructionProgress.bim_reference),
         ).filter(
-            ConstructionProgress.phase_id == phase_id,
+            ConstructionProgress.bim_reference_id == bim_reference_id,
             ConstructionProgress.deleted_at.is_(None),
         ).order_by(ConstructionProgress.created_at.desc()).all()
     
@@ -92,7 +93,6 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
     def list_without_deviation_score(
         self,
         construction_id: str,
-        phase_id: Optional[str] = None,
     ) -> list[ConstructionProgress]:
         """
         List progress entries without deviation scores.
@@ -103,9 +103,6 @@ class ConstructionProgressRepository(ConstructionProgressRepositoryInterface):
             ConstructionProgress.deviation_score.is_(None),
             ConstructionProgress.deleted_at.is_(None),
         )
-        
-        if phase_id:
-            query = query.filter(ConstructionProgress.phase_id == phase_id)
         
         return query.all()
 

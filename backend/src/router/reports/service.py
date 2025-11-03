@@ -4,7 +4,6 @@ from sqlalchemy import func
 
 from src.entities.report import ReportResponse, ReportDetail
 from src.repositories.repositories.construction_repo.construction_repo import ConstructionRepository
-from src.repositories.repositories.construction_phase_repo.construction_phase_repo import ConstructionPhaseRepository
 from src.repositories.repositories.construction_progress_repo.construction_progress_repo import ConstructionProgressRepository
 from src.repositories.models.construction import DeviationReport, ConstructionProgress
 from src.helpers.errors import NotFoundException, InternalServerException
@@ -19,7 +18,6 @@ class ReportService:
     def __init__(self, db: Session):
         self.db = db
         self.construction_repo = ConstructionRepository(db)
-        self.phase_repo = ConstructionPhaseRepository(db)
         self.progress_repo = ConstructionProgressRepository(db)
     
     def generate_report(self, construction_id: str) -> ReportResponse:
@@ -37,7 +35,7 @@ class ReportService:
         
         ai_analysis = openai_service.generate_construction_report(
             construction_name=construction.name,
-            phases_data=report_data["phases"],
+            timeline_data=report_data["timeline"],
             deviations_data=report_data["deviations"],
             total_progress=report_data["total_progress"],
             average_deviation=report_data["average_deviation"],
@@ -93,35 +91,37 @@ class ReportService:
         """
         Aggregate construction data for report generation.
         """
-        phases = self.phase_repo.list_by_construction(construction_id)
         progress_entries = self.progress_repo.list_by_construction(construction_id)
         
-        phases_data = {}
-        for phase in phases:
-            phase_progress = [p for p in progress_entries if p.phase_id == phase.id]
-            deviations = [p.deviation_score for p in phase_progress if p.deviation_score is not None]
-            
-            phases_data[phase.phase_name] = {
-                "status": phase.status.value,
-                "progress_count": len(phase_progress),
-                "avg_deviation": sum(deviations) / len(deviations) if deviations else None,
-            }
+        timeline_data = {}
+        for progress in progress_entries:
+            date_key = progress.created_at.strftime("%Y-%m-%d")
+            if date_key not in timeline_data:
+                timeline_data[date_key] = {
+                    "progress_count": 0,
+                    "deviations": [],
+                }
+            timeline_data[date_key]["progress_count"] += 1
+            if progress.deviation_score is not None:
+                timeline_data[date_key]["deviations"].append(progress.deviation_score)
+        
+        for date_key in timeline_data:
+            deviations = timeline_data[date_key]["deviations"]
+            timeline_data[date_key]["avg_deviation"] = sum(deviations) / len(deviations) if deviations else None
         
         deviations_data = []
         for progress in progress_entries:
-            phase_name = progress.phase.phase_name if progress.phase else "Sem fase"
             deviations_data.append({
-                "phase": phase_name,
+                "date": progress.created_at,
                 "score": progress.deviation_score,
                 "notes": progress.notes,
-                "date": progress.created_at,
             })
         
         all_deviations = [p.deviation_score for p in progress_entries if p.deviation_score is not None]
         average_deviation = sum(all_deviations) / len(all_deviations) if all_deviations else None
         
         return {
-            "phases": phases_data,
+            "timeline": timeline_data,
             "deviations": deviations_data,
             "total_progress": len(progress_entries),
             "average_deviation": average_deviation,

@@ -10,8 +10,8 @@ from src.repositories.models.base import Base, BaseModel
 from src.repositories.models.user import User
 from src.repositories.models.construction import (
     Construction,
-    ConstructionPhase,
     BIMReference,
+    BIMModel,
     ConstructionProgress,
     DeviationReport,
 )
@@ -25,8 +25,8 @@ __all__ = [
     "BaseModel",
     "User",
     "Construction",
-    "ConstructionPhase",
     "BIMReference",
+    "BIMModel",
     "ConstructionProgress",
     "DeviationReport",
 ]

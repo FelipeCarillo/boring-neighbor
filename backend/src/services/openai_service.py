@@ -20,7 +20,7 @@ class OpenAIService:
     def generate_construction_report(
         self,
         construction_name: str,
-        phases_data: dict,
+        timeline_data: dict,
         deviations_data: list[dict],
         total_progress: int,
         average_deviation: Optional[float],
@@ -30,7 +30,7 @@ class OpenAIService:
         """
         prompt = self._build_report_prompt(
             construction_name,
-            phases_data,
+            timeline_data,
             deviations_data,
             total_progress,
             average_deviation,
@@ -64,7 +64,7 @@ class OpenAIService:
     def _build_report_prompt(
         self,
         construction_name: str,
-        phases_data: dict,
+        timeline_data: dict,
         deviations_data: list[dict],
         total_progress: int,
         average_deviation: Optional[float],
@@ -79,22 +79,21 @@ OBRA: {construction_name}
 TOTAL DE REGISTROS DE PROGRESSO: {total_progress}
 SCORE MÉDIO DE DESVIO: {average_deviation:.2f}/100 (100 = execução perfeita)
 
-FASES DA OBRA:
+TIMELINE DE PROGRESSO:
 """
         
-        for phase_name, phase_info in phases_data.items():
-            prompt += f"\n{phase_name}:"
-            prompt += f"\n  - Status: {phase_info['status']}"
-            prompt += f"\n  - Registros: {phase_info['progress_count']}"
-            if phase_info['avg_deviation']:
-                prompt += f"\n  - Desvio Médio: {phase_info['avg_deviation']:.2f}/100"
+        for date_key, timeline_info in sorted(timeline_data.items()):
+            prompt += f"\n{date_key}:"
+            prompt += f"\n  - Registros: {timeline_info['progress_count']}"
+            if timeline_info['avg_deviation']:
+                prompt += f"\n  - Desvio Médio: {timeline_info['avg_deviation']:.2f}/100"
         
         prompt += "\n\nDESVIOS IDENTIFICADOS (Score < 70):\n"
         
         critical_deviations = [d for d in deviations_data if d['score'] and d['score'] < 70]
         if critical_deviations:
             for deviation in critical_deviations[:10]:
-                prompt += f"\n- Fase: {deviation['phase']}, Score: {deviation['score']:.2f}/100"
+                prompt += f"\n- Data: {deviation['date'].strftime('%Y-%m-%d')}, Score: {deviation['score']:.2f}/100"
                 if deviation['notes']:
                     prompt += f", Notas: {deviation['notes']}"
         else:
@@ -113,8 +112,8 @@ Por favor, gere um relatório técnico incluindo:
    - Possíveis causas
    - Impacto no cronograma
 
-3. ANÁLISE POR FASE
-   - Progresso de cada fase
+3. ANÁLISE TEMPORAL
+   - Progresso ao longo do tempo
    - Conformidade com o projeto
 
 4. RECOMENDAÇÕES

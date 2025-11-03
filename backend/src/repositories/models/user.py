@@ -6,7 +6,7 @@ from src.repositories.models.base import BaseModel
 from src.helpers.enums import UserRole
 
 if TYPE_CHECKING:
-    from src.repositories.models.construction import Construction, ConstructionProgress, BIMReference, DeviationReport
+    from src.repositories.models.construction import Construction, ConstructionProgress, BIMReference, BIMModel, DeviationReport
 
 
 class User(BaseModel):
@@ -40,6 +40,11 @@ class User(BaseModel):
     
     uploaded_bim_references: Mapped[list["BIMReference"]] = relationship(
         "BIMReference",
+        back_populates="uploaded_by_user",
+    )
+    
+    uploaded_bim_models: Mapped[list["BIMModel"]] = relationship(
+        "BIMModel",
         back_populates="uploaded_by_user",
     )
 

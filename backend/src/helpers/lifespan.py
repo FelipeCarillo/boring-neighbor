@@ -11,8 +11,8 @@ from src.repositories.models.base import Base
 from src.repositories.models import (  # noqa: F401
     User,
     Construction,
-    ConstructionPhase,
     BIMReference,
+    BIMModel,
     ConstructionProgress,
     DeviationReport,
 )

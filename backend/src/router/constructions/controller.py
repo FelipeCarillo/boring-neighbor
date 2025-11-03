@@ -9,6 +9,7 @@ from src.entities.construction import (
     AssignUserRequest,
     BIMUploadRequest,
     BIMReferenceResponse,
+    BIMModelResponse,
 )
 from src.router.constructions.service import ConstructionService
 from src.repositories.models.user import User
@@ -98,7 +99,6 @@ class ConstructionController:
         file: UploadFile,
         current_user: User,
         db: Session,
-        phase_id: str | None = None,
         description: str | None = None,
     ) -> BIMReferenceResponse:
         """
@@ -109,8 +109,55 @@ class ConstructionController:
             construction_id=construction_id,
             file=file,
             uploaded_by=current_user.id,
-            phase_id=phase_id,
             description=description,
         )
+    
+    @staticmethod
+    def delete_bim_reference(
+        construction_id: str,
+        bim_id: str,
+        db: Session,
+    ) -> dict:
+        """
+        Delete BIM reference image.
+        """
+        service = ConstructionService(db)
+        service.delete_bim_reference(construction_id, bim_id)
+        return {"message": "BIM reference deleted successfully"}
+    
+    @staticmethod
+    async def upload_model_3d(
+        construction_id: str,
+        file: UploadFile,
+        current_user: User,
+        db: Session,
+    ) -> dict:
+        """
+        Upload 3D model file for construction.
+        Suporta múltiplos formatos: .obj, .gltf, .glb, .fbx
+        """
+        service = ConstructionService(db)
+        return await service.upload_model_3d(
+            construction_id=construction_id,
+            file=file,
+            uploaded_by=current_user.id,
+        )
+    
+    @staticmethod
+    def delete_model_3d(construction_id: str, db: Session) -> dict:
+        """
+        Delete 3D model from construction.
+        """
+        service = ConstructionService(db)
+        service.delete_model_3d(construction_id)
+        return {"message": "3D model deleted successfully"}
+    
+    @staticmethod
+    def get_construction_timeline(construction_id: str, db: Session) -> list[dict]:
+        """
+        Get temporal evolution of construction progress.
+        """
+        service = ConstructionService(db)
+        return service.get_construction_timeline(construction_id)
 
 

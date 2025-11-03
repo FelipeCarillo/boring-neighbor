@@ -46,7 +46,6 @@ class ConstructionRepository(ConstructionRepositoryInterface):
         """
         return self.db.query(Construction).options(
             joinedload(Construction.assigned_users),
-            joinedload(Construction.phases),
             joinedload(Construction.created_by_user),
         ).filter(
             Construction.id == construction_id,
