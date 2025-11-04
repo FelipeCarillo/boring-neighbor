@@ -13,6 +13,7 @@ import ConstructionsList from './pages/Constructions/ConstructionsList';
 import ConstructionView from './pages/Constructions/ConstructionView';
 import ProgressView from './pages/Progress/ProgressView';
 import UsersList from './pages/Users/UsersList';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -107,13 +108,13 @@ function App() {
                 }
               />
 
-              {/* Profile Route - Placeholder */}
+              {/* Profile Route */}
               <Route
                 path="/profile"
                 element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <div>Perfil - Em desenvolvimento</div>
+                      <Profile />
                     </MainLayout>
                   </ProtectedRoute>
                 }

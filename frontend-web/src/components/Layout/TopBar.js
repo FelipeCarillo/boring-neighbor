@@ -3,15 +3,21 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Typography,
   Box,
+  Badge,
+  Tooltip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 
-const TopBar = ({ onMenuClick }) => {
+const TopBar = ({ onMenuClick, isMobile }) => {
+  if (!isMobile) {
+    // Desktop: no TopBar needed, just using sidebar
+    return null;
+  }
+
   return (
     <AppBar
       position="fixed"
@@ -19,6 +25,7 @@ const TopBar = ({ onMenuClick }) => {
         zIndex: (theme) => theme.zIndex.drawer + 1,
         bgcolor: 'white',
         color: 'text.primary',
+        boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
       }}
     >
       <Toolbar>
@@ -27,19 +34,21 @@ const TopBar = ({ onMenuClick }) => {
           aria-label="open drawer"
           edge="start"
           onClick={onMenuClick}
-          sx={{ mr: 2, display: { sm: 'none' } }}
+          sx={{ mr: 2 }}
         >
           <MenuIcon />
         </IconButton>
-        
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Sistema de Gestão de Obras
-        </Typography>
+
+        <Box sx={{ flexGrow: 1 }} />
 
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton color="inherit">
-            <NotificationsIcon />
-          </IconButton>
+          <Tooltip title="Notificações">
+            <IconButton color="inherit">
+              <Badge badgeContent={0} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
         </Box>
       </Toolbar>
     </AppBar>

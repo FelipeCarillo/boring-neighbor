@@ -14,7 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
-import { CONSTRUCTION_STATUS } from '../../utils/constants';
+import { CONSTRUCTION_STATUS, CONSTRUCTION_STATUS_LABELS } from '../../utils/constants';
 
 const ConstructionForm = ({ open, onClose, onSubmit, construction, loading }) => {
   const [formData, setFormData] = useState({
@@ -178,7 +178,7 @@ const ConstructionForm = ({ open, onClose, onSubmit, construction, loading }) =>
                 >
                   {Object.entries(CONSTRUCTION_STATUS).map(([key, value]) => (
                     <MenuItem key={key} value={value}>
-                      {key.replace('_', ' ')}
+                      {CONSTRUCTION_STATUS_LABELS[value]}
                     </MenuItem>
                   ))}
                 </TextField>

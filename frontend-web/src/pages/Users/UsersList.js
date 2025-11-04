@@ -216,46 +216,62 @@ const UsersList = () => {
   }
 
   return (
-    <Container maxWidth="lg">
+    <Box>
       <Box mb={4}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3} flexWrap="wrap" gap={2}>
           <Box>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Gerenciamento de Usuários
+            <Typography variant="h3" fontWeight="700" gutterBottom sx={{ letterSpacing: '-0.02em' }}>
+              Usuários
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.secondary" fontWeight={500}>
               Gerencie os usuários do sistema
             </Typography>
           </Box>
           <Button
             variant="contained"
+            size="large"
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
+            sx={{ px: 3, py: 1.5 }}
           >
             Novo Usuário
           </Button>
         </Box>
 
-        <Card>
-          <TableContainer component={Paper}>
+        <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+          <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Registro</TableCell>
-                  <TableCell>Função</TableCell>
-                  <TableCell>Criado em</TableCell>
-                  <TableCell align="right">Ações</TableCell>
+                <TableRow sx={{ bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Nome</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Registro</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Função</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Criado em</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      <Box py={4}>
-                        <PersonIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
-                        <Typography variant="body2" color="text.secondary">
+                    <TableCell colSpan={6} align="center" sx={{ border: 'none' }}>
+                      <Box py={8}>
+                        <Box
+                          sx={{
+                            width: 100,
+                            height: 100,
+                            borderRadius: '50%',
+                            bgcolor: 'rgba(0, 0, 0, 0.03)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mx: 'auto',
+                            mb: 2,
+                          }}
+                        >
+                          <PersonIcon sx={{ fontSize: 48, color: 'text.disabled' }} />
+                        </Box>
+                        <Typography variant="h6" color="text.primary" fontWeight={600}>
                           Nenhum usuário cadastrado
                         </Typography>
                       </Box>
@@ -263,15 +279,27 @@ const UsersList = () => {
                   </TableRow>
                 ) : (
                   users.map((user) => (
-                    <TableRow key={user.id} hover>
+                    <TableRow 
+                      key={user.id} 
+                      hover
+                      sx={{
+                        '&:hover': {
+                          bgcolor: 'rgba(0, 0, 0, 0.02)',
+                        },
+                      }}
+                    >
                       <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
+                        <Typography variant="body2" fontWeight="600">
                           {user.name}
                         </Typography>
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
                       <TableCell>
                         <Typography variant="body2" color="text.secondary">
+                          {user.email}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" color="text.secondary" fontFamily="monospace">
                           {user.registro}
                         </Typography>
                       </TableCell>
@@ -280,6 +308,7 @@ const UsersList = () => {
                           label={getRoleLabel(user.role)}
                           color={getRoleColor(user.role)}
                           size="small"
+                          sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>
@@ -288,22 +317,33 @@ const UsersList = () => {
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
-                        <Tooltip title="Editar">
+                        <Tooltip title="Editar" arrow>
                           <IconButton
                             size="small"
-                            color="primary"
                             onClick={() => handleOpenDialog(user)}
+                            sx={{
+                              bgcolor: 'rgba(4, 85, 191, 0.08)',
+                              mr: 1,
+                              '&:hover': {
+                                bgcolor: 'rgba(4, 85, 191, 0.16)',
+                              },
+                            }}
                           >
-                            <EditIcon fontSize="small" />
+                            <EditIcon fontSize="small" color="primary" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Excluir">
+                        <Tooltip title="Excluir" arrow>
                           <IconButton
                             size="small"
-                            color="error"
                             onClick={() => handleOpenDeleteDialog(user)}
+                            sx={{
+                              bgcolor: 'rgba(238, 49, 36, 0.08)',
+                              '&:hover': {
+                                bgcolor: 'rgba(238, 49, 36, 0.16)',
+                              },
+                            }}
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon fontSize="small" color="error" />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
@@ -416,7 +456,7 @@ const UsersList = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 

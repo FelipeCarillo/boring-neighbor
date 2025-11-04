@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, Fade } from '@mui/material';
 import { Inbox as InboxIcon } from '@mui/icons-material';
 
 const EmptyState = ({
@@ -10,30 +10,69 @@ const EmptyState = ({
   actionLabel,
 }) => {
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="300px"
-      textAlign="center"
-      p={4}
-    >
-      <Icon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
-      <Typography variant="h6" color="text.secondary" gutterBottom>
-        {title}
-      </Typography>
-      {description && (
-        <Typography variant="body2" color="text.disabled" mb={3}>
-          {description}
+    <Fade in timeout={400}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '400px',
+          textAlign: 'center',
+          p: 4,
+        }}
+      >
+        <Box
+          sx={{
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            bgcolor: 'rgba(0, 0, 0, 0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 3,
+          }}
+        >
+          <Icon 
+            sx={{ 
+              fontSize: 56, 
+              color: 'text.disabled',
+            }} 
+          />
+        </Box>
+        <Typography 
+          variant="h5" 
+          color="text.primary" 
+          gutterBottom
+          fontWeight={600}
+        >
+          {title}
         </Typography>
-      )}
-      {action && actionLabel && (
-        <Button variant="contained" onClick={action}>
-          {actionLabel}
-        </Button>
-      )}
-    </Box>
+        {description && (
+          <Typography 
+            variant="body1" 
+            color="text.secondary" 
+            sx={{ mb: 4, maxWidth: 400 }}
+          >
+            {description}
+          </Typography>
+        )}
+        {action && actionLabel && (
+          <Button 
+            variant="contained" 
+            onClick={action}
+            size="large"
+            sx={{
+              px: 4,
+              py: 1.5,
+            }}
+          >
+            {actionLabel}
+          </Button>
+        )}
+      </Box>
+    </Fade>
   );
 };
 

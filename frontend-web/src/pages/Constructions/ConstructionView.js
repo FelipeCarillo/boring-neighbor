@@ -43,6 +43,7 @@ import { useSnackbar } from 'notistack';
 import { constructionsAPI } from '../../api/constructions';
 import { useAuth } from '../../contexts/AuthContext';
 import AssignUsers from '../../components/Constructions/AssignUsers';
+import ConstructionForm from '../../components/Constructions/ConstructionForm';
 import ProgressGallery from '../../components/Progress/ProgressGallery';
 import ProgressForm from '../../components/Progress/ProgressForm';
 import BIMGallery from '../../components/BIM/BIMGallery';
@@ -71,6 +72,8 @@ const ConstructionView = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const [assignUsersOpen, setAssignUsersOpen] = useState(false);
+  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [editFormLoading, setEditFormLoading] = useState(false);
   const [progressList, setProgressList] = useState([]);
   const [progressFormOpen, setProgressFormOpen] = useState(false);
   const [progressFormLoading, setProgressFormLoading] = useState(false);
@@ -173,6 +176,23 @@ const ConstructionView = () => {
         err.response?.data?.detail || 'Erro ao atribuir usuários',
         { variant: 'error' }
       );
+    }
+  };
+
+  const handleEditConstruction = async (formData) => {
+    setEditFormLoading(true);
+    try {
+      await constructionsAPI.update(id, formData);
+      enqueueSnackbar('Obra atualizada com sucesso!', { variant: 'success' });
+      setEditFormOpen(false);
+      loadConstruction();
+    } catch (err) {
+      enqueueSnackbar(
+        err.response?.data?.detail || 'Erro ao atualizar obra',
+        { variant: 'error' }
+      );
+    } finally {
+      setEditFormLoading(false);
     }
   };
 
@@ -335,15 +355,25 @@ const ConstructionView = () => {
             </Typography>
             <Box display="flex" gap={1} alignItems="center" mb={1}>
               <Chip
-                label={CONSTRUCTION_STATUS_LABELS[construction.status]}
-                color={CONSTRUCTION_STATUS_COLORS[construction.status]}
+                label={CONSTRUCTION_STATUS_LABELS[construction.status] || construction.status}
+                color={CONSTRUCTION_STATUS_COLORS[construction.status] || 'default'}
+                sx={{ fontWeight: 600 }}
               />
             </Box>
           </Box>
 
                {isSupervisor() && (
-                 <Tooltip title="Editar obra">
-                   <IconButton color="primary" onClick={() => navigate(`/constructions/edit/${id}`)}>
+                 <Tooltip title="Editar obra" arrow>
+                   <IconButton 
+                     color="primary" 
+                     onClick={() => setEditFormOpen(true)}
+                     sx={{
+                       bgcolor: 'rgba(4, 85, 191, 0.08)',
+                       '&:hover': {
+                         bgcolor: 'rgba(4, 85, 191, 0.16)',
+                       },
+                     }}
+                   >
                      <EditIcon />
                    </IconButton>
                  </Tooltip>
@@ -832,6 +862,15 @@ const ConstructionView = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Form de Edição da Obra */}
+      <ConstructionForm
+        open={editFormOpen}
+        onClose={() => setEditFormOpen(false)}
+        onSubmit={handleEditConstruction}
+        construction={construction}
+        loading={editFormLoading}
+      />
     </Container>
   );
 };
