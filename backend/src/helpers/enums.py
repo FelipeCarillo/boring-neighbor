@@ -22,26 +22,3 @@ class ConstructionStatus(str, Enum):
     CANCELLED = "CANCELLED"
 
 
-class PhaseStatus(str, Enum):
-    """
-    Construction phase status types.
-    """
-    
-    PENDING = "PENDING"
-    IN_PROGRESS = "IN_PROGRESS"
-    COMPLETED = "COMPLETED"
-
-
-class StandardPhase(str, Enum):
-    """
-    Standard construction phases for Metro SP projects.
-    """
-    
-    FUNDACAO = "Fundação"
-    ESTRUTURA = "Estrutura"
-    ALVENARIA = "Alvenaria"
-    INSTALACOES = "Instalações"
-    ACABAMENTO = "Acabamento"
-    FINALIZACAO = "Finalização"
-
-

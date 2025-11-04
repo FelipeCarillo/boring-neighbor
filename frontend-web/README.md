@@ -1,159 +1,70 @@
-# Metrô Obras - Sistema de Gestão de Obras
+# Getting Started with Create React App
 
-Sistema de gestão de obras do Metrô de São Paulo desenvolvido com React, TypeScript e Electron.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## 🚀 Funcionalidades
+## Available Scripts
 
-### Autenticação e Usuários
-- **Sign In/Sign Up**: Sistema de cadastro e login
-- **Verificação**: Verificação de conta por código
-- **Controle de Acesso**: Baseado em roles (ADMMaster e Analista)
+In the project directory, you can run:
 
-### Gestão de Obras
-- **Dashboard**: Visão geral com estatísticas e obras recentes
-- **Lista de Obras**: Visualização e filtros de todas as obras
-- **Visualização da Obra**: Detalhes completos com abas organizadas
-- **Modelo 3D BIM**: Área preparada para visualização de modelos 3D
-- **Histórico**: Histórico completo de obras concluídas/canceladas
+### `npm start`
 
-### Gestão de Analistas (ADMMaster)
-- **CRUD de Analistas**: Criar, editar, visualizar e excluir analistas
-- **Atribuição de Obras**: Gerenciar quais analistas trabalham em cada obra
-- **Controle de Permissões**: Diferentes níveis de acesso por role
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## 🛠️ Tecnologias
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-- **Frontend**: React 18 + TypeScript
-- **Estilização**: Tailwind CSS v4
-- **Desktop**: Electron 30
-- **Roteamento**: React Router DOM
-- **Formulários**: React Hook Form + Zod
-- **Ícones**: Lucide React
-- **Build**: Vite
+### `npm test`
 
-## 🎨 Paleta de Cores
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-Seguindo as cores oficiais do Metrô SP:
-- **Azul Principal**: `#001489`
-- **Branco**: `#fff`
-- **Preto**: `#000`
-- **Cinza**: Variações de `gray-*`
+### `npm run build`
 
-## 📁 Estrutura do Projeto
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-```
-src/
-├── components/          # Componentes reutilizáveis
-│   ├── Layout.tsx      # Layout principal com sidebar
-│   └── ProtectedRoute.tsx # Rota protegida
-├── contexts/           # Contextos React
-│   └── AuthContext.tsx # Contexto de autenticação
-├── pages/              # Páginas da aplicação
-│   ├── SignIn.tsx      # Login
-│   ├── SignUp.tsx      # Cadastro
-│   ├── Verify.tsx      # Verificação
-│   ├── Dashboard.tsx   # Dashboard principal
-│   ├── ObrasList.tsx   # Lista de obras
-│   ├── ObraView.tsx    # Visualização da obra
-│   ├── Historico.tsx   # Histórico de obras
-│   └── Configuracoes.tsx # Configurações (ADMMaster)
-├── types/              # Tipos TypeScript
-│   ├── index.ts        # Tipos principais
-│   └── global.d.ts     # Tipos globais
-└── App.tsx             # Componente principal com rotas
-```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-## 🚀 Como Executar
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### Pré-requisitos
-- Node.js 18+
-- npm ou yarn
+### `npm run eject`
 
-### Instalação
-```bash
-# Instalar dependências
-npm install
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-# Executar em modo desenvolvimento
-npm run dev
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-# Build para produção
-npm run build
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-# Build para desktop (Electron)
-npm run build
-```
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## 🔐 Roles e Permissões
+## Learn More
 
-### ADMMaster
-- ✅ Acesso total ao sistema
-- ✅ CRUD de obras
-- ✅ CRUD de analistas
-- ✅ Atribuição de analistas às obras
-- ✅ Configurações do sistema
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-### Analista
-- ✅ Visualizar obras atribuídas
-- ✅ Acessar documentos das obras
-- ✅ Ver histórico de obras
-- ❌ Não pode criar/editar obras
-- ❌ Não pode gerenciar outros analistas
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-## 📱 Telas Principais
+### Code Splitting
 
-1. **Sign In** - Login com email e senha
-2. **Sign Up** - Cadastro de nova conta
-3. **Verify** - Verificação por código
-4. **Dashboard** - Visão geral e estatísticas
-5. **Lista de Obras** - Todas as obras com filtros
-6. **Visualização da Obra** - Detalhes completos com abas
-7. **Histórico** - Obras concluídas e canceladas
-8. **Configurações** - Gestão de analistas (ADMMaster)
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-## 🔧 Configuração
+### Analyzing the Bundle Size
 
-### Variáveis de Ambiente
-O projeto está configurado para funcionar com dados mockados. Para integração com backend real:
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-1. Criar arquivo `.env` na raiz
-2. Configurar variáveis de API
-3. Substituir dados mockados por chamadas reais
+### Making a Progressive Web App
 
-### Electron
-- Configurado para desenvolvimento e produção
-- Suporte a Windows, macOS e Linux
-- Build automático com electron-builder
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-## 📊 Dados Mockados
+### Advanced Configuration
 
-O sistema inclui dados de exemplo para demonstração:
-- Usuários com diferentes roles
-- Obras em diferentes status
-- Analistas com diferentes níveis
-- Documentos e atividades de exemplo
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-## 🚧 Próximos Passos
+### Deployment
 
-- [ ] Integração com backend real
-- [ ] Implementação de visualização 3D BIM
-- [ ] Sistema de notificações
-- [ ] Relatórios e exportação
-- [ ] Upload de arquivos
-- [ ] Sistema de auditoria
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-## 🤝 Contribuição
+### `npm run build` fails to minify
 
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto é privado e desenvolvido para o Metrô de São Paulo.
-
----
-
-**Desenvolvido com ❤️ para o Metrô de São Paulo**
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

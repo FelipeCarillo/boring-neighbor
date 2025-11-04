@@ -42,5 +42,16 @@ class ProgressController:
         """
         service = ProgressService(db)
         return service.list_progress_by_construction(construction_id)
+    
+    @staticmethod
+    def list_progress_by_bim_reference(
+        bim_reference_id: str,
+        db: Session,
+    ) -> list[ProgressResponse]:
+        """
+        List all progress entries for a specific BIM reference.
+        """
+        service = ProgressService(db)
+        return service.list_progress_by_bim_reference(bim_reference_id)
 
 

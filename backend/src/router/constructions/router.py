@@ -9,6 +9,7 @@ from src.entities.construction import (
     ConstructionDetail,
     AssignUserRequest,
     BIMReferenceResponse,
+    BIMModelResponse,
 )
 from src.router.constructions.controller import ConstructionController
 from src.repositories.database import get_db
@@ -150,7 +151,6 @@ def remove_user(
 async def upload_bim_reference(
     construction_id: str,
     file: UploadFile = File(...),
-    phase_id: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_admin_or_supervisor_user),
@@ -165,8 +165,90 @@ async def upload_bim_reference(
         file=file,
         current_user=current_user,
         db=db,
-        phase_id=phase_id,
         description=description,
     )
+
+
+@router.delete(
+    "/{construction_id}/bim/{bim_id}",
+    status_code=status.HTTP_200_OK,
+)
+def delete_bim_reference(
+    construction_id: str,
+    bim_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_or_supervisor_user),
+):
+    """
+    Delete BIM reference image.
+    
+    Requires ADMIN or SUPERVISOR role.
+    """
+    return ConstructionController.delete_bim_reference(
+        construction_id=construction_id,
+        bim_id=bim_id,
+        db=db,
+    )
+
+
+@router.post(
+    "/{construction_id}/model-3d",
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_model_3d(
+    construction_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_or_supervisor_user),
+):
+    """
+    Upload 3D model file for construction.
+    
+    Suporta múltiplos formatos: .obj, .gltf, .glb, .fbx
+    Sem limite de tamanho.
+    
+    Requires ADMIN or SUPERVISOR role.
+    """
+    return await ConstructionController.upload_model_3d(
+        construction_id=construction_id,
+        file=file,
+        current_user=current_user,
+        db=db,
+    )
+
+
+@router.delete(
+    "/{construction_id}/model-3d",
+    status_code=status.HTTP_200_OK,
+)
+def delete_model_3d(
+    construction_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_admin_or_supervisor_user),
+):
+    """
+    Delete 3D model from construction.
+    
+    Requires ADMIN or SUPERVISOR role.
+    """
+    return ConstructionController.delete_model_3d(construction_id, db)
+
+
+@router.get(
+    "/{construction_id}/timeline",
+    response_model=list[dict],
+)
+def get_construction_timeline(
+    construction_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get temporal evolution of construction progress.
+    
+    Returns chronological progression showing overall progress over time.
+    Requires authentication.
+    """
+    return ConstructionController.get_construction_timeline(construction_id, db)
 
 

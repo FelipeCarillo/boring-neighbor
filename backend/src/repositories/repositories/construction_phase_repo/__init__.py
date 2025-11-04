@@ -1,6 +1,0 @@
-from src.repositories.repositories.construction_phase_repo.construction_phase_repo import ConstructionPhaseRepository
-from src.repositories.repositories.construction_phase_repo.construction_phase_repo_interface import ConstructionPhaseRepositoryInterface
-
-__all__ = ["ConstructionPhaseRepository", "ConstructionPhaseRepositoryInterface"]
-
-

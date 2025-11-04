@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 
-from src.entities.user import UserLogin, TokenResponse, UserResponse
+from src.entities.user import UserLogin, TokenResponse, UserResponse, UserCreate
 from src.router.auth.controller import AuthController
 from src.repositories.database import get_db
 from src.helpers.auth import get_current_user

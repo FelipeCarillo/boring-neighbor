@@ -45,7 +45,7 @@ class SSIMDeviationCalculator(DeviationCalculatorInterface):
         
         deviation_score = max(0.0, min(100.0, ssim_score * 100))
         
-        return deviation_score
+        return float(deviation_score)
     
     def _load_image(self, image_bytes: bytes) -> np.ndarray:
         """
