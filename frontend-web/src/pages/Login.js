@@ -13,7 +13,6 @@ import {
   Fade,
 } from '@mui/material';
 import {
-  ViewInAr as ViewInArIcon,
   Visibility,
   VisibilityOff,
   LoginOutlined as LoginIcon,
@@ -120,15 +119,19 @@ const Login = () => {
                     display: 'inline-flex',
                     p: 2.5,
                     borderRadius: 3,
-                    background: 'linear-gradient(135deg, #0455BF 0%, #00903E 100%)',
+                    background: 'white',
                     mb: 2.5,
                     boxShadow: '0 8px 24px rgba(4, 85, 191, 0.3)',
                   }}
                 >
-                  <ViewInArIcon
+                  <Box
+                    component="img"
+                    src={`${process.env.PUBLIC_URL}/metro-logo.png`}
+                    alt="Metro SP"
                     sx={{
-                      fontSize: 48,
-                      color: 'white',
+                      width: 80,
+                      height: 80,
+                      objectFit: 'contain',
                     }}
                   />
                 </Box>

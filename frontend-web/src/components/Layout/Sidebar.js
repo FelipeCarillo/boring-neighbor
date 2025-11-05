@@ -16,7 +16,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   Construction as ConstructionIcon,
-  ViewInAr as ViewInArIcon,
   People as PeopleIcon,
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon,
@@ -169,11 +168,15 @@ const Sidebar = ({ open, onClose, isMobile, collapsed, onToggleCollapse }) => {
           flex: 1,
           justifyContent: collapsed ? 'center' : 'flex-start',
         }}>
-          <ViewInArIcon 
+          <Box
+            component="img"
+            src={`${process.env.PUBLIC_URL}/metro-logo.png`}
+            alt="Metro SP"
             sx={{ 
-              fontSize: collapsed ? 32 : 40,
-              color: 'primary.main',
+              width: collapsed ? 32 : 40,
+              height: collapsed ? 32 : 40,
               transition: 'all 0.3s ease-in-out',
+              objectFit: 'contain',
             }} 
           />
           {!collapsed && (

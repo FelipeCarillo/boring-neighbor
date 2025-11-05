@@ -663,6 +663,7 @@ const ConstructionView = () => {
                        reports={reportsList}
                        loading={loadingReports}
                        constructionId={id}
+                       constructionName={construction?.name}
                      />
                    </Box>
                  )}
