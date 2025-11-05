@@ -33,32 +33,26 @@ export default function ConstructionDetailScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgress, setSelectedProgress] = useState<Progress | null>(null);
   const [selectedBimFilter, setSelectedBimFilter] = useState<string | null>(null);
+  const [selectedBimReference, setSelectedBimReference] = useState<BIMReference | null>(null);
   const { user } = useAuth();
   const router = useRouter();
 
-  // Tenta usar dados da lista se disponíveis (para renderização inicial mais rápida)
-  // Mas sempre faz getById para garantir dados completos (assigned_users, bim_references)
   const loadConstruction = async () => {
     if (!id) return;
     
-    // Se temos dados da lista, usa como estado inicial
     if (constructionData) {
       try {
         const parsed = JSON.parse(constructionData);
         setConstruction(parsed);
-        setLoading(false); // Mostra dados básicos imediatamente
+        setLoading(false);
       } catch (e) {
-        console.error('Erro ao parsear dados da construção:', e);
       }
     }
     
     try {
-      // Sempre busca dados completos do backend
-      // O ID vem como string da rota, e o backend espera string (UUID)
       const data = await constructionsAPI.getById(id);
       setConstruction(data);
     } catch (error) {
-      console.error('Erro ao carregar obra:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -69,11 +63,9 @@ export default function ConstructionDetailScreen() {
     if (!id) return;
     
     try {
-      // O ID vem como string da rota, e o backend espera string (UUID)
       const data = await progressAPI.listByConstruction(id);
       setProgressList(data);
     } catch (error) {
-      console.error('Erro ao carregar progresso:', error);
     }
   };
 
@@ -94,7 +86,11 @@ export default function ConstructionDetailScreen() {
     loadProgress();
   };
 
-  // Agrupa progresso por BIM Reference
+  const replaceLocalhostUrl = (url: string | undefined): string | undefined => {
+    if (!url) return url;
+    return url.replace(/localhost|127\.0\.0\.1/g, '10.2.0.177');
+  };
+
   const groupedProgress = useMemo(() => {
     const groups: Record<string, { bim: BIMReference | null; entries: Progress[] }> = {};
     
@@ -109,7 +105,6 @@ export default function ConstructionDetailScreen() {
       groups[bimId].entries.push(progress);
     });
     
-    // Ordena por data (mais recente primeiro)
     Object.values(groups).forEach((group) => {
       group.entries.sort((a, b) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -121,7 +116,6 @@ export default function ConstructionDetailScreen() {
     return groups;
   }, [progressList]);
 
-  // Filtra progresso baseado na seleção
   const filteredProgress = useMemo(() => {
     if (!selectedBimFilter || selectedBimFilter === 'all') {
       return progressList;
@@ -193,7 +187,7 @@ export default function ConstructionDetailScreen() {
 
   if (!construction) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={[]}>
         <View style={styles.errorContainer}>
           <MaterialIcons name="error-outline" size={64} color={METRO_COLORS.TEXT_SECONDARY} />
           <Text style={styles.errorText}>Obra não encontrada</Text>
@@ -205,11 +199,8 @@ export default function ConstructionDetailScreen() {
     );
   }
 
-  const statusColor = getStatusColor(construction.status);
-  const statusLabel = CONSTRUCTION_STATUS_LABELS[construction.status as keyof typeof CONSTRUCTION_STATUS_LABELS] || construction.status;
-
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -217,32 +208,8 @@ export default function ConstructionDetailScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButtonIcon}>
-            <MaterialIcons name="arrow-back" size={24} color={METRO_COLORS.PRIMARY} />
-          </TouchableOpacity>
-          
-          <View style={styles.headerContent}>
-            <View style={styles.titleRow}>
-              <MaterialIcons 
-                name={getStatusIcon(construction.status) as any} 
-                size={24} 
-                color={statusColor} 
-                style={styles.statusIcon}
-              />
-              <Text style={styles.title} numberOfLines={2}>{construction.name}</Text>
-            </View>
-            
-            <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-              <Text style={styles.statusText}>{statusLabel}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Progresso Geral */}
         {construction.progress_percentage !== undefined && (
-          <View style={styles.section}>
+          <View style={[styles.section, styles.firstSection]}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Progresso Geral</Text>
               <Text style={styles.progressPercentage}>
@@ -267,7 +234,6 @@ export default function ConstructionDetailScreen() {
           </View>
         )}
 
-        {/* Informações Gerais */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informações</Text>
           
@@ -304,7 +270,6 @@ export default function ConstructionDetailScreen() {
           )}
         </View>
 
-        {/* Usuários Atribuídos */}
         {construction.assigned_users && construction.assigned_users.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -329,7 +294,6 @@ export default function ConstructionDetailScreen() {
           </View>
         )}
 
-        {/* Referências BIM */}
         {construction.bim_references && construction.bim_references.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -345,13 +309,13 @@ export default function ConstructionDetailScreen() {
                   style={styles.bimCard}
                   onPress={() => {
                     if (bim.presigned_url) {
-                      Linking.openURL(bim.presigned_url);
+                      setSelectedBimReference(bim);
                     }
                   }}
                 >
                   {bim.presigned_url ? (
                     <Image
-                      source={{ uri: bim.presigned_url }}
+                      source={{ uri: replaceLocalhostUrl(bim.presigned_url)! }}
                       style={styles.bimImage}
                       resizeMode="cover"
                     />
@@ -376,7 +340,10 @@ export default function ConstructionDetailScreen() {
           </View>
         )}
 
-        {/* Histórico de Progresso */}
+        <View style={styles.section}>
+          <PhotoCapture construction={construction} onSuccess={handleSuccess} />
+        </View>
+
         {progressList.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -386,7 +353,6 @@ export default function ConstructionDetailScreen() {
               </View>
             </View>
 
-            {/* Filtro por BIM */}
             {Object.keys(groupedProgress).length > 1 && (
               <ScrollView 
                 horizontal 
@@ -428,7 +394,6 @@ export default function ConstructionDetailScreen() {
               </ScrollView>
             )}
 
-            {/* Lista de Progresso */}
             {filteredProgress.map((progress) => (
               <TouchableOpacity
                 key={progress.id}
@@ -437,7 +402,7 @@ export default function ConstructionDetailScreen() {
               >
                 {progress.presigned_url && (
                   <Image
-                    source={{ uri: progress.presigned_url }}
+                    source={{ uri: replaceLocalhostUrl(progress.presigned_url)! }}
                     style={styles.progressImage}
                     resizeMode="cover"
                   />
@@ -480,14 +445,8 @@ export default function ConstructionDetailScreen() {
             ))}
           </View>
         )}
-
-        {/* Captura de Fotos */}
-        <View style={styles.section}>
-          <PhotoCapture construction={construction} onSuccess={handleSuccess} />
-        </View>
       </ScrollView>
 
-      {/* Modal de Detalhes do Progresso */}
       <Modal
         visible={selectedProgress !== null}
         animationType="slide"
@@ -507,7 +466,7 @@ export default function ConstructionDetailScreen() {
               <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
                 {selectedProgress.presigned_url && (
                   <Image
-                    source={{ uri: selectedProgress.presigned_url }}
+                    source={{ uri: replaceLocalhostUrl(selectedProgress.presigned_url)! }}
                     style={styles.modalImage}
                     resizeMode="contain"
                   />
@@ -548,7 +507,7 @@ export default function ConstructionDetailScreen() {
                       {selectedProgress.bim_reference.presigned_url && (
                         <TouchableOpacity
                           style={styles.viewBimButton}
-                          onPress={() => Linking.openURL(selectedProgress.bim_reference!.presigned_url!)}
+                          onPress={() => Linking.openURL(replaceLocalhostUrl(selectedProgress.bim_reference!.presigned_url!)!)}
                         >
                           <MaterialIcons name="open-in-new" size={16} color={METRO_COLORS.PRIMARY} />
                           <Text style={styles.viewBimButtonText}>Ver Referência</Text>
@@ -585,6 +544,77 @@ export default function ConstructionDetailScreen() {
           </View>
         )}
       </Modal>
+
+      <Modal
+        visible={selectedBimReference !== null}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSelectedBimReference(null)}
+      >
+        {selectedBimReference && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  {selectedBimReference.description || 'Referência BIM'}
+                </Text>
+                <TouchableOpacity onPress={() => setSelectedBimReference(null)}>
+                  <MaterialIcons name="close" size={24} color={METRO_COLORS.TEXT_PRIMARY} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+                {selectedBimReference.presigned_url && (
+                  <Image
+                    source={{ uri: replaceLocalhostUrl(selectedBimReference.presigned_url)! }}
+                    style={styles.modalImage}
+                    resizeMode="contain"
+                  />
+                )}
+
+                {selectedBimReference.description && (
+                  <View style={styles.modalSection}>
+                    <Text style={styles.modalSectionTitle}>Descrição</Text>
+                    <Text style={styles.modalNotes}>{selectedBimReference.description}</Text>
+                  </View>
+                )}
+
+                <View style={styles.modalSection}>
+                  <Text style={styles.modalSectionTitle}>Informações</Text>
+                  {selectedBimReference.created_at && (
+                    <View style={styles.modalInfoRow}>
+                      <Text style={styles.modalInfoLabel}>Adicionado em:</Text>
+                      <Text style={styles.modalInfoValue}>
+                        {formatDateTime(selectedBimReference.created_at)}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </ScrollView>
+
+              <View style={styles.modalFooter}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalButtonSecondary]}
+                  onPress={() => {
+                    if (selectedBimReference.presigned_url) {
+                      Linking.openURL(replaceLocalhostUrl(selectedBimReference.presigned_url)!);
+                    }
+                  }}
+                >
+                  <MaterialIcons name="open-in-new" size={20} color={METRO_COLORS.PRIMARY} />
+                  <Text style={styles.modalButtonSecondaryText}>Abrir em Navegador</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.modalButtonPrimary]}
+                  onPress={() => setSelectedBimReference(null)}
+                >
+                  <Text style={styles.modalButtonPrimaryText}>Fechar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -597,45 +627,6 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  header: {
-    backgroundColor: METRO_COLORS.SURFACE,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: METRO_COLORS.BORDER,
-  },
-  backButtonIcon: {
-    marginBottom: 12,
-    alignSelf: 'flex-start',
-  },
-  headerContent: {
-    gap: 12,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  statusIcon: {
-    marginTop: 2,
-  },
-  title: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: '700',
-    color: METRO_COLORS.TEXT_PRIMARY,
-  },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
   section: {
     backgroundColor: METRO_COLORS.SURFACE,
     padding: 16,
@@ -643,6 +634,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: METRO_COLORS.BORDER,
+  },
+  firstSection: {
+    marginTop: 0,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -795,24 +789,24 @@ const styles = StyleSheet.create({
   progressCard: {
     backgroundColor: METRO_COLORS.BACKGROUND,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 8,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: METRO_COLORS.BORDER,
   },
   progressImage: {
     width: '100%',
-    height: 200,
+    height: 120,
     backgroundColor: METRO_COLORS.BORDER,
   },
   progressCardContent: {
-    padding: 12,
+    padding: 10,
   },
   progressCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
     gap: 8,
   },
   progressBadge: {
@@ -844,13 +838,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   progressNotes: {
-    fontSize: 14,
+    fontSize: 13,
     color: METRO_COLORS.TEXT_PRIMARY,
-    marginBottom: 8,
-    lineHeight: 20,
+    marginBottom: 6,
+    lineHeight: 18,
   },
   progressDate: {
-    fontSize: 12,
+    fontSize: 11,
     color: METRO_COLORS.TEXT_SECONDARY,
   },
   errorContainer: {
@@ -993,5 +987,39 @@ const styles = StyleSheet.create({
     color: METRO_COLORS.TEXT_PRIMARY,
     flex: 1,
     textAlign: 'right',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    gap: 12,
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: METRO_COLORS.BORDER,
+  },
+  modalButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 8,
+    gap: 8,
+  },
+  modalButtonSecondary: {
+    backgroundColor: METRO_COLORS.BACKGROUND,
+    borderWidth: 1,
+    borderColor: METRO_COLORS.BORDER,
+  },
+  modalButtonPrimary: {
+    backgroundColor: METRO_COLORS.PRIMARY,
+  },
+  modalButtonSecondaryText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: METRO_COLORS.PRIMARY,
+  },
+  modalButtonPrimaryText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

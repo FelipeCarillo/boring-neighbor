@@ -8,10 +8,9 @@ const client: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 segundos
+  timeout: 10000,
 });
 
-// Request interceptor para adicionar token
 client.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
@@ -19,14 +18,9 @@ client.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Para FormData no React Native, remover Content-Type padrão
-    // para permitir que o axios defina automaticamente com boundary
     if (config.data instanceof FormData) {
       if (config.headers) {
-        // Remove o Content-Type padrão (application/json) se existir
         delete config.headers['Content-Type'];
-        // Se Content-Type foi definido manualmente nos headers da requisição,
-        // deixa ele (será sobrescrito pelo axios com boundary correto)
       }
     }
     
@@ -37,7 +31,6 @@ client.interceptors.request.use(
   }
 );
 
-// Response interceptor para tratar erros
 client.interceptors.response.use(
   (response) => {
     return response;
@@ -45,7 +38,6 @@ client.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Tratamento de erros de rede
     if (!error.response) {
       if (error.code === 'ECONNABORTED') {
         error.message = 'Tempo de requisição esgotado. Verifique sua conexão.';
@@ -60,7 +52,6 @@ client.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Se erro 401 e não é retry, tenta refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -81,7 +72,6 @@ client.interceptors.response.use(
           return client(originalRequest);
         }
       } catch (refreshError) {
-        // Se refresh falhar, limpa storage
         await AsyncStorage.multiRemove([
           STORAGE_KEYS.TOKEN,
           STORAGE_KEYS.REFRESH_TOKEN,

@@ -14,7 +14,6 @@ export default function TabLayout() {
       if (!isAuthenticated) {
         router.replace('/login');
       } else if (segments[0] === '(tabs)') {
-        // Usuário autenticado, pode acessar as tabs
       }
     }
   }, [isAuthenticated, loading, segments]);
