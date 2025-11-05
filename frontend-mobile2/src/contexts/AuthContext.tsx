@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
-      console.error('Erro ao carregar usuário do storage:', error);
       await logout();
     } finally {
       setLoading(false);
@@ -65,7 +64,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(data.user);
       return { success: true };
     } catch (error: any) {
-      console.error('Erro no login:', error);
       return {
         success: false,
         error: error.response?.data?.detail || 'Erro ao fazer login',
@@ -93,7 +91,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       updateUser(userData);
       return userData;
     } catch (error: any) {
-      console.error('Erro ao atualizar dados do usuário:', error);
       if (error.response?.status === 401) {
         await logout();
       }

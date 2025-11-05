@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -20,7 +21,7 @@ import { LoadingSpinner } from '../../src/components/LoadingSpinner';
 import { EmptyState } from '../../src/components/EmptyState';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2 - 8; // 2 cards por linha com espaçamento
+const CARD_WIDTH = (width - 48) / 2 - 8;
 
 interface StatCardProps {
   title: string;
@@ -66,56 +67,39 @@ export default function DashboardScreen() {
 
   const loadDashboardData = async () => {
     try {
-      // Buscar todas as obras da API
       const data = await constructionsAPI.list();
       setAllConstructions(data);
       
-      // Filtrar apenas obras atribuídas ao usuário atual
-      // Verifica se o usuário está na lista de assigned_users
-      const assignedConstructions = data.filter(construction => {
-        if (!user?.id) {
-          console.log('Usuário não encontrado, pulando filtro');
-          return false;
-        }
-        
-        // Verifica se o usuário está na lista de usuários atribuídos
-        const isAssigned = construction.assigned_users?.some(
-          assignedUser => assignedUser.id === user.id
-        );
-        
-        return isAssigned;
+      const sortedConstructions = [...data].sort((a, b) => {
+        const progressA = a.progress_percentage || 0;
+        const progressB = b.progress_percentage || 0;
+        return progressB - progressA;
       });
       
-      console.log(`[Dashboard] Total de obras encontradas: ${data.length}`);
-      console.log(`[Dashboard] Obras atribuídas ao usuário ${user?.id}: ${assignedConstructions.length}`);
-      
-      setConstructions(assignedConstructions);
+      setConstructions(sortedConstructions);
 
-      // Calcular estatísticas baseadas nas obras atribuídas
-      const inProgress = assignedConstructions.filter(
+      const inProgress = data.filter(
         c => c.status === CONSTRUCTION_STATUS.IN_PROGRESS
       ).length;
       
-      const completed = assignedConstructions.filter(
+      const completed = data.filter(
         c => c.status === CONSTRUCTION_STATUS.COMPLETED
       ).length;
 
-      // Calcular progresso médio
-      const totalProgress = assignedConstructions.length > 0
+      const totalProgress = data.length > 0
         ? Math.round(
-            assignedConstructions.reduce((sum, c) => sum + (c.progress_percentage || 0), 0) /
-            assignedConstructions.length
+            data.reduce((sum, c) => sum + (c.progress_percentage || 0), 0) /
+            data.length
           )
         : 0;
 
       setStats({
-        total: assignedConstructions.length,
+        total: data.length,
         inProgress,
         completed,
         totalProgress,
       });
     } catch (error) {
-      console.error('Erro ao carregar dados do dashboard:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -134,13 +118,13 @@ export default function DashboardScreen() {
   };
 
   const handleConstructionPress = (construction: Construction) => {
-    router.push(`/construction/${construction.id}` as any);
-  };
-
-  const handleQuickAction = () => {
-    if (constructions.length > 0) {
-      handleConstructionPress(constructions[0]);
-    }
+    router.push({
+      pathname: '/construction/[id]' as any,
+      params: { 
+        id: construction.id.toString(),
+        constructionData: JSON.stringify(construction),
+      },
+    });
   };
 
   if (loading) {
@@ -148,8 +132,7 @@ export default function DashboardScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.greeting}>Olá, {user?.nome || 'Usuário'}</Text>
@@ -167,7 +150,6 @@ export default function DashboardScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Estatísticas */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Visão Geral</Text>
           
@@ -199,39 +181,9 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Ações Rápidas */}
-        {constructions.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ações Rápidas</Text>
-            
-            <View style={styles.quickActions}>
-              <TouchableOpacity
-                style={styles.quickActionCard}
-                onPress={handleQuickAction}
-                activeOpacity={0.7}
-              >
-                <MaterialIcons name="camera-alt" size={32} color={METRO_COLORS.PRIMARY} />
-                <Text style={styles.quickActionText}>Enviar Fotos</Text>
-                <Text style={styles.quickActionSubtext}>Para análise BIM</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.quickActionCard}
-                onPress={() => router.push('/(tabs)/constructions' as any)}
-                activeOpacity={0.7}
-              >
-                <MaterialIcons name="list" size={32} color={METRO_COLORS.SUCCESS} />
-                <Text style={styles.quickActionText}>Ver Todas</Text>
-                <Text style={styles.quickActionSubtext}>Obras atribuídas</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* Obras Recentes */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Minhas Obras</Text>
+            <Text style={styles.sectionTitle}>Obras Recentes</Text>
             {constructions.length > 0 && (
               <TouchableOpacity onPress={() => router.push('/(tabs)/constructions' as any)}>
                 <Text style={styles.seeAllText}>Ver todas</Text>
@@ -241,8 +193,8 @@ export default function DashboardScreen() {
 
           {constructions.length === 0 ? (
             <EmptyState
-              title="Nenhuma obra atribuída"
-              description="Você ainda não possui obras atribuídas."
+              title="Nenhuma obra encontrada"
+              description="Não há obras cadastradas no sistema."
               actionLabel="Atualizar"
               onAction={onRefresh}
             />
@@ -271,7 +223,7 @@ export default function DashboardScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -372,35 +324,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  quickActionCard: {
-    flex: 1,
-    backgroundColor: METRO_COLORS.SURFACE,
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: METRO_COLORS.BORDER,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-  },
-  quickActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: METRO_COLORS.TEXT_PRIMARY,
-    marginTop: 8,
-  },
-  quickActionSubtext: {
-    fontSize: 12,
-    color: METRO_COLORS.TEXT_SECONDARY,
-    marginTop: 4,
   },
   constructionsList: {
     gap: 12,

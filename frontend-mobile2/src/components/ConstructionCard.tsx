@@ -13,14 +13,12 @@ export const ConstructionCard = ({ construction, onPress }: ConstructionCardProp
   const statusColor = CONSTRUCTION_STATUS_COLORS[construction.status as keyof typeof CONSTRUCTION_STATUS_COLORS] || METRO_COLORS.TEXT_SECONDARY;
   const statusLabel = CONSTRUCTION_STATUS_LABELS[construction.status as keyof typeof CONSTRUCTION_STATUS_LABELS] || construction.status;
 
-  // Formatar data
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  // Determinar ícone baseado no status
   const getStatusIcon = () => {
     switch (construction.status) {
       case 'PLANNED':
@@ -61,7 +59,6 @@ export const ConstructionCard = ({ construction, onPress }: ConstructionCardProp
         <Text style={styles.description} numberOfLines={2}>{construction.description}</Text>
       )}
 
-      {/* Informações adicionais */}
       <View style={styles.infoRow}>
         {construction.start_date && (
           <View style={styles.infoItem}>

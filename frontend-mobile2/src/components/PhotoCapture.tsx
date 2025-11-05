@@ -31,11 +31,9 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
   const [notes, setNotes] = useState('');
   const [showNotesInput, setShowNotesInput] = useState(false);
 
-  // Verifica se a obra tem referências BIM
   const hasBIMReferences = construction.bim_references && construction.bim_references.length > 0;
   const bimReferences = construction.bim_references || [];
 
-  // Auto-seleciona a primeira BIM se houver apenas uma
   useEffect(() => {
     if (bimReferences.length === 1 && !selectedBimReference) {
       setSelectedBimReference(bimReferences[0]);
@@ -80,7 +78,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
         setPhotos([...photos, result.assets[0].uri]);
       }
     } catch (error) {
-      console.error('Erro ao tirar foto:', error);
       Alert.alert('Erro', 'Não foi possível tirar a foto.');
     }
   };
@@ -103,7 +100,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
         setPhotos([...photos, ...uris]);
       }
     } catch (error) {
-      console.error('Erro ao selecionar foto:', error);
       Alert.alert('Erro', 'Não foi possível selecionar a foto.');
     }
   };
@@ -147,7 +143,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
       let successCount = 0;
       let errorCount = 0;
 
-      // Envia cada foto individualmente com a referência BIM selecionada
       for (const uri of photos) {
         try {
           const formData = new FormData();
@@ -156,30 +151,17 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
           const match = /\.(\w+)$/.exec(filename);
           const type = match ? `image/${match[1]}` : 'image/jpeg';
           
-          // Preparar URI corretamente para React Native
-          // No Android, pode precisar manter file://, no iOS também
           let fileUri = uri;
           if (Platform.OS === 'android' && !uri.startsWith('file://') && !uri.startsWith('http')) {
             fileUri = `file://${uri}`;
           }
           
-          console.log('FormData - Preparando arquivo:', {
-            originalUri: uri.substring(0, 50),
-            fileUri: fileUri.substring(0, 50),
-            filename,
-            type,
-            platform: Platform.OS,
-          });
-          
-          // Formato correto para React Native FormData
-          // O objeto deve ter uri, type e name
           formData.append('file', {
             uri: fileUri,
             type: type,
             name: filename,
           } as any);
           
-          // Adiciona os campos como strings (como no frontend-web)
           formData.append('construction_id', String(construction.id));
           formData.append('bim_reference_id', String(selectedBimReference.id));
           
@@ -187,32 +169,9 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
             formData.append('notes', notes.trim());
           }
 
-          console.log('Enviando foto:', { 
-            filename, 
-            type, 
-            uri: uri.substring(0, 50) + '...',
-            construction_id: construction.id, 
-            bim_reference_id: selectedBimReference.id,
-            formDataKeys: ['file', 'construction_id', 'bim_reference_id', notes.trim() ? 'notes' : null].filter(Boolean),
-            apiBaseURL: API_BASE_URL,
-            endpoint: `${API_BASE_URL}/progress`
-          });
-          
           await progressAPI.register(formData);
           successCount++;
         } catch (error: any) {
-          console.error('Erro ao enviar foto:', error);
-          console.error('Detalhes do erro:', {
-            message: error.message,
-            code: error.code,
-            response: error.response?.data,
-            status: error.response?.status,
-            config: {
-              url: error.config?.url,
-              method: error.config?.method,
-              headers: error.config?.headers,
-            }
-          });
           errorCount++;
         }
       }
@@ -235,10 +194,9 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
           ]
         );
       } else {
-        Alert.alert('Erro', 'Não foi possível enviar as fotos. Tente novamente.');
+        Alert.alert('Erro', 'Não foi possível enviar as fotos. Tente novamente.'        );
       }
     } catch (error: any) {
-      console.error('Erro ao enviar fotos:', error);
       Alert.alert(
         'Erro',
         error.response?.data?.detail || 'Não foi possível enviar as fotos. Tente novamente.'
@@ -252,7 +210,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
     return <LoadingSpinner message="Enviando fotos..." />;
   }
 
-  // Se não tem referências BIM, mostra mensagem informativa
   if (!hasBIMReferences) {
     return (
       <View style={styles.container}>
@@ -312,7 +269,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
 
           <Text style={styles.photoCount}>{photos.length} foto(s) selecionada(s)</Text>
 
-          {/* Seletor de Referência BIM */}
           <View style={styles.bimSelectorContainer}>
             <Text style={styles.bimSelectorLabel}>Referência BIM *</Text>
             <TouchableOpacity
@@ -352,7 +308,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
             </TouchableOpacity>
           </View>
 
-          {/* Campo de Observações (Opcional) */}
           {showNotesInput ? (
             <View style={styles.notesContainer}>
               <Text style={styles.notesLabel}>Observações (Opcional)</Text>
@@ -400,7 +355,6 @@ export const PhotoCapture = ({ construction, onSuccess }: PhotoCaptureProps) => 
         </>
       )}
 
-      {/* Modal de Seleção de BIM Reference */}
       <Modal
         visible={showBimSelector}
         animationType="slide"

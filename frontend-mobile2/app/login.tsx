@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/contexts/AuthContext';
@@ -23,7 +24,12 @@ export default function LoginScreen() {
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!registro.trim() || !password.trim()) {
+    if (!registro.trim() || registro.trim().length !== 7) {
+      Alert.alert('Atenção', 'O registro deve conter exatamente 7 dígitos.');
+      return;
+    }
+
+    if (!password.trim()) {
       Alert.alert('Atenção', 'Preencha todos os campos.');
       return;
     }
@@ -48,6 +54,13 @@ export default function LoginScreen() {
     }
   };
 
+  const handleRegistroChange = (text: string) => {
+    const numericText = text.replace(/[^0-9]/g, '');
+    if (numericText.length <= 7) {
+      setRegistro(numericText);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner message="Fazendo login..." />;
   }
@@ -59,7 +72,11 @@ export default function LoginScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.logo}>🚇</Text>
+          <Image
+            source={{ uri: 'https://www.metro.sp.gov.br/wp-content/uploads/2023/05/image-23.png' }}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Metrô SP</Text>
           <Text style={styles.subtitle}>Gestão de Obras</Text>
         </View>
@@ -68,12 +85,13 @@ export default function LoginScreen() {
           <Text style={styles.label}>Registro</Text>
           <TextInput
             style={styles.input}
-            placeholder="Digite seu registro"
+            placeholder="Digite seu registro (7 dígitos)"
             value={registro}
-            onChangeText={setRegistro}
+            onChangeText={handleRegistroChange}
+            keyboardType="numeric"
+            maxLength={7}
             autoCapitalize="none"
             autoCorrect={false}
-            keyboardType="default"
           />
 
           <Text style={styles.label}>Senha</Text>
@@ -119,7 +137,8 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logo: {
-    fontSize: 64,
+    width: 120,
+    height: 120,
     marginBottom: 16,
   },
   title: {

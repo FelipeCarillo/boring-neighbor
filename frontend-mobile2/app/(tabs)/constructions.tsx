@@ -43,9 +43,7 @@ export default function ConstructionsListScreen() {
     try {
       const data = await constructionsAPI.list();
       setAllConstructions(data);
-      console.log(`Total de obras encontradas: ${data.length}`);
     } catch (error) {
-      console.error('Erro ao carregar obras:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -58,7 +56,6 @@ export default function ConstructionsListScreen() {
     }
   }, [user]);
 
-  // Calcular estatísticas
   const stats = useMemo(() => {
     const total = allConstructions.length;
     const inProgress = allConstructions.filter(c => c.status === CONSTRUCTION_STATUS.IN_PROGRESS).length;
@@ -69,18 +66,15 @@ export default function ConstructionsListScreen() {
     return { total, inProgress, completed, planned, onHold };
   }, [allConstructions]);
 
-  // Aplicar filtros e ordenação
   useEffect(() => {
     let filtered = [...allConstructions];
 
-    // Filtro por tipo (all/assigned)
     if (filter === 'assigned' && user?.id) {
       filtered = filtered.filter(construction => 
         construction.assigned_users?.some(assignedUser => assignedUser.id === user.id)
       );
     }
 
-    // Busca por nome ou localização
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(construction =>
@@ -90,12 +84,10 @@ export default function ConstructionsListScreen() {
       );
     }
 
-    // Filtro por status
     if (statusFilter) {
-      filtered = filtered.filter(construction => construction.status === statusFilter);
+      filtered = filtered.filter(construction => construction.status === statusFilter      );
     }
 
-    // Filtro por progresso
     if (progressFilter !== 'all') {
       filtered = filtered.filter(construction => {
         const progress = construction.progress_percentage || 0;
@@ -114,7 +106,6 @@ export default function ConstructionsListScreen() {
       });
     }
 
-    // Ordenação
     filtered.sort((a, b) => {
       switch (sortType) {
         case 'name':
@@ -122,11 +113,11 @@ export default function ConstructionsListScreen() {
         case 'date':
           const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
           const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-          return dateB - dateA; // Mais recente primeiro
+          return dateB - dateA;
         case 'progress':
           const progressA = a.progress_percentage || 0;
           const progressB = b.progress_percentage || 0;
-          return progressB - progressA; // Maior progresso primeiro
+          return progressB - progressA;
         default:
           return 0;
       }
@@ -141,7 +132,6 @@ export default function ConstructionsListScreen() {
   };
 
   const handleConstructionPress = (construction: Construction) => {
-    // Passa dados básicos da lista para renderização inicial mais rápida
     router.push({
       pathname: '/construction/[id]' as any,
       params: { 
@@ -173,7 +163,6 @@ export default function ConstructionsListScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header com Estatísticas */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.title}>Obras</Text>
@@ -187,7 +176,6 @@ export default function ConstructionsListScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Estatísticas */}
       {allConstructions.length > 0 && (
         <View style={styles.statsContainer}>
           <ScrollView 
@@ -221,7 +209,6 @@ export default function ConstructionsListScreen() {
         </View>
       )}
 
-      {/* Campo de Busca */}
       <View style={styles.searchContainer}>
         <MaterialIcons name="search" size={20} color={METRO_COLORS.TEXT_SECONDARY} />
         <TextInput
@@ -238,38 +225,6 @@ export default function ConstructionsListScreen() {
         )}
       </View>
 
-      {/* Filtros Rápidos */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
-          onPress={() => setFilter('all')}
-        >
-          <MaterialIcons 
-            name="list" 
-            size={18} 
-            color={filter === 'all' ? '#FFFFFF' : METRO_COLORS.TEXT_SECONDARY} 
-          />
-          <Text style={[styles.filterButtonText, filter === 'all' && styles.filterButtonTextActive]}>
-            Todas
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.filterButton, filter === 'assigned' && styles.filterButtonActive]}
-          onPress={() => setFilter('assigned')}
-        >
-          <MaterialIcons 
-            name="person" 
-            size={18} 
-            color={filter === 'assigned' ? '#FFFFFF' : METRO_COLORS.TEXT_SECONDARY} 
-          />
-          <Text style={[styles.filterButtonText, filter === 'assigned' && styles.filterButtonTextActive]}>
-            Minhas Obras
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Lista de Obras */}
       {filteredConstructions.length === 0 ? (
         <EmptyState
           title={hasActiveFilters ? 'Nenhuma obra encontrada' : 'Nenhuma obra disponível'}
@@ -294,7 +249,7 @@ export default function ConstructionsListScreen() {
                 construction={construction}
                 onPress={() => handleConstructionPress(construction)}
               />
-              {filter === 'all' && isAssignedToUser(construction) && (
+              {isAssignedToUser(construction) && (
                 <View style={styles.assignedBadge}>
                   <MaterialIcons name="check-circle" size={14} color={METRO_COLORS.SUCCESS} />
                   <Text style={styles.assignedBadgeText}>Atribuída a você</Text>
@@ -305,7 +260,6 @@ export default function ConstructionsListScreen() {
         </ScrollView>
       )}
 
-      {/* Modal de Filtros Avançados */}
       <Modal
         visible={showFilters}
         animationType="slide"
@@ -322,7 +276,6 @@ export default function ConstructionsListScreen() {
             </View>
 
             <ScrollView style={styles.modalBody}>
-              {/* Filtro por Status */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterSectionTitle}>Status</Text>
                 <View style={styles.filterOptions}>
@@ -348,7 +301,6 @@ export default function ConstructionsListScreen() {
                 </View>
               </View>
 
-              {/* Filtro por Progresso */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterSectionTitle}>Progresso</Text>
                 <View style={styles.filterOptions}>
@@ -380,7 +332,6 @@ export default function ConstructionsListScreen() {
                 </View>
               </View>
 
-              {/* Ordenação */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterSectionTitle}>Ordenar por</Text>
                 <View style={styles.filterOptions}>
@@ -519,40 +470,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: METRO_COLORS.TEXT_PRIMARY,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    gap: 12,
-    backgroundColor: METRO_COLORS.SURFACE,
-    borderBottomWidth: 1,
-    borderBottomColor: METRO_COLORS.BORDER,
-  },
-  filterButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: METRO_COLORS.BACKGROUND,
-    borderWidth: 1,
-    borderColor: METRO_COLORS.BORDER,
-    gap: 6,
-  },
-  filterButtonActive: {
-    backgroundColor: METRO_COLORS.PRIMARY,
-    borderColor: METRO_COLORS.PRIMARY,
-  },
-  filterButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: METRO_COLORS.TEXT_SECONDARY,
-  },
-  filterButtonTextActive: {
-    color: '#FFFFFF',
   },
   list: {
     flex: 1,

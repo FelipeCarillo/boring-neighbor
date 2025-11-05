@@ -12,9 +12,6 @@ export const constructionsAPI = {
     return response.data;
   },
 
-  // Endpoint para upload de múltiplas fotos para análise BIM
-  // Nota: Este endpoint pode precisar ser criado no backend
-  // Por enquanto, usando o endpoint de progresso para cada foto
   uploadBIMAnalysis: async (constructionId: string | number, formData: FormData): Promise<any> => {
     const response = await client.post(`/constructions/${constructionId}/bim-analysis`, formData, {
       headers: {
