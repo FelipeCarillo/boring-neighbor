@@ -1,0 +1,623 @@
+{
+  "projeto": {
+    "nome": "Frontend-web",
+    "versao": "0.1.0",
+    "descricao": "Aplicação React para gestão de obras do Metrô de São Paulo",
+    "tipo": "SPA (Single Page Application)",
+    "framework": "React 18.2.0"
+  },
+  "arquitetura": {
+    "padrao": "Component-Based Architecture",
+    "estrutura": {
+      "api": "Camada de serviços para comunicação com backend",
+      "components": "Componentes reutilizáveis organizados por funcionalidade",
+      "pages": "Views/páginas principais da aplicação",
+      "contexts": "Gerenciamento de estado global (React Context)",
+      "utils": "Funções utilitárias e helpers",
+      "theme": "Configuração de tema Material-UI"
+    },
+    "gerenciamentoEstado": {
+      "local": "useState para estado de componente",
+      "global": "AuthContext para autenticação",
+      "server": "Fetching direto via API, sem cache global"
+    }
+  },
+  "uiux": {
+    "designSystem": {
+      "nome": "Metro SP Theme",
+      "cores": {
+        "primary": {
+          "hex": "#0455BF",
+          "nome": "Azul Metro - Linha 1",
+          "light": "#4A8CD9",
+          "dark": "#023E8A"
+        },
+        "secondary": {
+          "hex": "#EE3124",
+          "nome": "Vermelho Metro - Linha 3",
+          "light": "#F26659",
+          "dark": "#C1251A"
+        },
+        "success": {
+          "hex": "#00903E",
+          "nome": "Verde Metro - Linha 2",
+          "light": "#4CAF50",
+          "dark": "#00632B"
+        },
+        "warning": {
+          "hex": "#FBD12D",
+          "nome": "Amarelo Metro - Linha 4",
+          "light": "#FFE566",
+          "dark": "#F9A825"
+        },
+        "background": {
+          "default": "#FAFAFA",
+          "paper": "#FFFFFF"
+        }
+      },
+      "tipografia": {
+        "familia": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+        "hierarquia": {
+          "h1": "2.75rem, 600",
+          "h2": "2.25rem, 600",
+          "h3": "1.875rem, 600",
+          "h4": "1.5rem, 600",
+          "h5": "1.25rem, 600",
+          "h6": "1.125rem, 600"
+        }
+      },
+      "espacamento": {
+        "base": "8px",
+        "borderRadius": {
+          "padrao": "12px",
+          "botoes": "8px",
+          "chips": "16px"
+        }
+      }
+    },
+    "componentesLayout": {
+      "MainLayout": {
+        "descricao": "Layout principal com sidebar e topbar",
+        "responsivo": true,
+        "persistencia": "localStorage para estado da sidebar"
+      },
+      "Sidebar": {
+        "modoExpandido": "280px",
+        "modoColapsado": "70px",
+        "responsivo": true,
+        "mobile": "Drawer temporário"
+      },
+      "TopBar": {
+        "visibilidade": "Apenas em mobile",
+        "funcionalidades": ["Menu hamburguer", "Notificações (placeholder)"]
+      }
+    },
+    "responsividade": {
+      "breakpoints": {
+        "xs": "< 600px (Mobile)",
+        "sm": "≥ 600px (Tablet)",
+        "md": "≥ 900px (Desktop pequeno)",
+        "lg": "≥ 1200px (Desktop)",
+        "xl": "≥ 1536px (Desktop grande)"
+      },
+      "estrategias": {
+        "sidebar": "Drawer em mobile, permanente em desktop",
+        "grid": "Adaptação automática de colunas",
+        "cards": "Full width em mobile, grid em desktop",
+        "fab": "Apenas visível em mobile para ações rápidas"
+      }
+    },
+    "animacoes": {
+      "tipos": ["fadeIn", "fadeInUp", "slideInLeft", "slideInRight", "scaleIn"],
+      "transicoes": {
+        "cards": "translateY(-4px) no hover",
+        "botoes": "translateY(-1px) no hover",
+        "sidebar": "width 0.3s ease-in-out"
+      }
+    },
+    "acessibilidade": {
+      "focusVisible": "Outline customizado",
+      "tooltips": "Elementos colapsados",
+      "labels": "Descritivos em formulários",
+      "contraste": "WCAG AA",
+      "navegacaoTeclado": true
+    }
+  },
+  "rotas": {
+    "publicas": [
+      {
+        "path": "/login",
+        "componente": "Login",
+        "descricao": "Página de autenticação"
+      }
+    ],
+    "protegidas": [
+      {
+        "path": "/dashboard",
+        "componente": "Dashboard",
+        "roleRequired": null,
+        "descricao": "Dashboard principal com estatísticas"
+      },
+      {
+        "path": "/constructions",
+        "componente": "ConstructionsList",
+        "roleRequired": null,
+        "descricao": "Lista de todas as obras"
+      },
+      {
+        "path": "/constructions/:id",
+        "componente": "ConstructionView",
+        "roleRequired": null,
+        "descricao": "Detalhes de uma obra específica"
+      },
+      {
+        "path": "/progress",
+        "componente": "ProgressView",
+        "roleRequired": null,
+        "descricao": "Visualização de progresso"
+      },
+      {
+        "path": "/users",
+        "componente": "UsersList",
+        "roleRequired": ["ADMIN", "SUPERVISOR"],
+        "descricao": "Gestão de usuários"
+      },
+      {
+        "path": "/profile",
+        "componente": "Profile",
+        "roleRequired": null,
+        "descricao": "Perfil do usuário logado"
+      },
+      {
+        "path": "/bim",
+        "componente": "Placeholder",
+        "roleRequired": null,
+        "descricao": "BIM/IFC (em desenvolvimento)",
+        "status": "pendente"
+      },
+      {
+        "path": "/reports",
+        "componente": "Placeholder",
+        "roleRequired": null,
+        "descricao": "Relatórios (em desenvolvimento)",
+        "status": "pendente"
+      }
+    ],
+    "redirecionamentos": {
+      "/": "/dashboard",
+      "*": "/dashboard"
+    },
+    "protecao": {
+      "componente": "ProtectedRoute",
+      "funcionalidades": [
+        "Verifica autenticação via AuthContext",
+        "Valida roles quando necessário",
+        "Exibe loading durante verificação",
+        "Redireciona automaticamente quando necessário"
+      ]
+    }
+  },
+  "implementacoes": {
+    "autenticacao": {
+      "metodo": "JWT com refresh tokens",
+      "storage": {
+        "accessToken": "localStorage (metro_access_token)",
+        "refreshToken": "localStorage (metro_refresh_token)",
+        "user": "localStorage (metro_user)"
+      },
+      "funcionalidades": [
+        "login(registro, password)",
+        "logout()",
+        "updateUser(user)",
+        "refreshUserData()",
+        "hasRole(roles)",
+        "isAdmin()",
+        "isSupervisor()"
+      ],
+      "autoRefresh": true,
+      "interceptors": {
+        "request": "Adiciona token automaticamente",
+        "response": "Refresh token em caso de 401"
+      }
+    },
+    "apiClient": {
+      "biblioteca": "Axios",
+      "configuracao": {
+        "baseURL": "process.env.REACT_APP_API_URL || 'http://localhost:8000/api'",
+        "headers": {
+          "padrao": "Content-Type: application/json",
+          "autenticacao": "Authorization: Bearer {token}"
+        }
+      },
+      "interceptors": {
+        "request": "Adiciona token de autenticação",
+        "response": "Trata refresh token e erros 401"
+      }
+    },
+    "gestaoObras": {
+      "ConstructionsList": {
+        "funcionalidades": [
+          "Listagem com busca em tempo real",
+          "Filtros por nome, localização, descrição",
+          "Criação/edição via modal",
+          "Cards com informações resumidas",
+          "Progresso visual"
+        ]
+      },
+      "ConstructionView": {
+        "tabs": [
+          "Detalhes: Informações gerais, status, timeline",
+          "Progresso: Lista de registros de progresso",
+          "BIM: Galeria de arquivos BIM/IFC",
+          "Modelo 3D: Visualização de modelos 3D",
+          "Usuários: Atribuição de usuários",
+          "Relatórios: Lista de relatórios gerados"
+        ],
+        "funcionalidades": [
+          "Edição inline",
+          "Upload de arquivos BIM e 3D",
+          "Gráficos de timeline"
+        ]
+      }
+    },
+    "visualizacaoBIM": {
+      "IFCViewer": {
+        "biblioteca": "@ifcjs/viewer",
+        "funcionalidades": [
+          "Carregamento de arquivos IFC",
+          "Controles de visualização",
+          "Grid toggle",
+          "Zoom e pan"
+        ]
+      },
+      "Model3DViewer": {
+        "biblioteca": "Three.js",
+        "formatosSuportados": ["OBJ", "GLTF", "FBX"],
+        "funcionalidades": [
+          "Controles orbitais",
+          "Iluminação configurável"
+        ]
+      },
+      "componentes": [
+        "BIMGallery",
+        "BIMUpload",
+        "Model3DUpload",
+        "CaptureModal"
+      ]
+    },
+    "gestaoProgresso": {
+      "ProgressView": {
+        "funcionalidades": [
+          "Lista de todos os registros de progresso",
+          "Filtros por obra",
+          "Cards com fotos e informações",
+          "Timeline visual"
+        ]
+      },
+      "ProgressForm": {
+        "funcionalidades": [
+          "Formulário para registro de progresso",
+          "Upload de múltiplas fotos",
+          "Captura de foto via webcam",
+          "Validação de dados"
+        ]
+      }
+    },
+    "dashboard": {
+      "estatisticas": [
+        "Total de obras",
+        "Total de usuários (apenas admin/supervisor)"
+      ],
+      "secoes": [
+        "Obras Recentes (últimas 3)",
+        "Cards com métricas",
+        "Animações fade in escalonadas"
+      ]
+    },
+    "gestaoUsuarios": {
+      "UsersList": {
+        "acesso": "ADMIN/SUPERVISOR apenas",
+        "funcionalidades": [
+          "Tabela de usuários",
+          "CRUD completo",
+          "Filtros e busca",
+          "Validação de roles",
+          "Formulário de criação/edição"
+        ]
+      }
+    }
+  },
+  "apis": {
+    "auth": {
+      "endpoints": [
+        "POST /auth/login",
+        "GET /auth/me",
+        "POST /auth/refresh"
+      ]
+    },
+    "constructions": {
+      "endpoints": [
+        "POST /constructions",
+        "GET /constructions",
+        "GET /constructions/:id",
+        "PUT /constructions/:id",
+        "DELETE /constructions/:id",
+        "POST /constructions/:id/users",
+        "DELETE /constructions/:id/users/:userId",
+        "POST /constructions/:id/bim",
+        "DELETE /constructions/:id/bim/:bimId",
+        "POST /constructions/:id/model-3d",
+        "DELETE /constructions/:id/model-3d",
+        "GET /constructions/:id/timeline"
+      ]
+    },
+    "progress": {
+      "endpoints": [
+        "POST /progress",
+        "GET /progress",
+        "GET /progress/construction/:constructionId",
+        "GET /progress/:id",
+        "PUT /progress/:id",
+        "DELETE /progress/:id"
+      ]
+    },
+    "reports": {
+      "endpoints": [
+        "GET /reports",
+        "GET /reports/construction/:constructionId",
+        "GET /reports/:id",
+        "POST /reports/generate"
+      ]
+    },
+    "users": {
+      "endpoints": [
+        "GET /users",
+        "GET /users/:id",
+        "POST /users",
+        "PUT /users/:id",
+        "DELETE /users/:id"
+      ]
+    }
+  },
+  "componentes": {
+    "layout": {
+      "MainLayout": {
+        "descricao": "Layout principal com sidebar e topbar",
+        "props": ["children"]
+      },
+      "Sidebar": {
+        "descricao": "Navegação lateral colapsável",
+        "props": ["open", "onClose", "isMobile", "collapsed", "onToggleCollapse"]
+      },
+      "TopBar": {
+        "descricao": "Barra superior (apenas mobile)",
+        "props": ["onMenuClick", "isMobile"]
+      }
+    },
+    "autenticacao": {
+      "ProtectedRoute": {
+        "descricao": "Proteção de rotas",
+        "props": ["children", "requireRole"]
+      }
+    },
+    "comuns": {
+      "LoadingSpinner": {
+        "descricao": "Indicador de carregamento",
+        "props": ["message"]
+      },
+      "EmptyState": {
+        "descricao": "Estado vazio com ícone e ação",
+        "props": ["icon", "title", "description", "action", "actionLabel"]
+      },
+      "ErrorAlert": {
+        "descricao": "Alerta de erro com retry",
+        "props": ["error", "onRetry"]
+      },
+      "ConfirmDialog": {
+        "descricao": "Diálogo de confirmação",
+        "props": ["open", "title", "message", "onConfirm", "onCancel"]
+      }
+    },
+    "construcoes": {
+      "ConstructionCard": {
+        "descricao": "Card de exibição de obra",
+        "props": ["construction", "onEdit"]
+      },
+      "ConstructionForm": {
+        "descricao": "Formulário de criação/edição",
+        "props": ["open", "onClose", "onSubmit", "construction", "loading"]
+      },
+      "AssignUsers": {
+        "descricao": "Atribuição de usuários à obra",
+        "props": ["constructionId", "open", "onClose"]
+      }
+    },
+    "bim": {
+      "IFCViewer": {
+        "descricao": "Visualizador de arquivos IFC",
+        "props": ["ifcUrl", "height"],
+        "biblioteca": "@ifcjs/viewer"
+      },
+      "Model3DViewer": {
+        "descricao": "Visualizador de modelos 3D",
+        "props": ["modelUrl", "height"],
+        "biblioteca": "Three.js"
+      },
+      "BIMGallery": {
+        "descricao": "Galeria de arquivos BIM"
+      },
+      "BIMUpload": {
+        "descricao": "Upload de arquivos BIM/IFC"
+      },
+      "Model3DUpload": {
+        "descricao": "Upload de modelos 3D"
+      }
+    },
+    "progresso": {
+      "ProgressCard": {
+        "descricao": "Card de registro de progresso"
+      },
+      "ProgressForm": {
+        "descricao": "Formulário de registro de progresso"
+      },
+      "ProgressGallery": {
+        "descricao": "Galeria de fotos de progresso"
+      }
+    },
+    "graficos": {
+      "ConstructionTimelineChart": {
+        "descricao": "Gráfico de timeline de construção",
+        "biblioteca": "Recharts"
+      },
+      "ProgressTimelineChart": {
+        "descricao": "Gráfico de timeline de progresso",
+        "biblioteca": "Recharts"
+      }
+    }
+  },
+  "tecnologias": {
+    "core": {
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "react-router-dom": "6.22.0",
+      "react-scripts": "5.0.1"
+    },
+    "ui": {
+      "@mui/material": "7.3.4",
+      "@mui/icons-material": "7.3.4",
+      "@mui/x-data-grid": "8.16.0",
+      "@mui/x-date-pickers": "8.16.0",
+      "@emotion/react": "11.14.0",
+      "@emotion/styled": "11.14.1"
+    },
+    "comunicacao": {
+      "axios": "1.13.1"
+    },
+    "visualizacao3d": {
+      "three": "0.149.0",
+      "@ifcjs/viewer": "latest"
+    },
+    "graficos": {
+      "recharts": "2.12.0"
+    },
+    "notificacoes": {
+      "notistack": "3.0.2"
+    },
+    "utilitarios": {
+      "dayjs": "1.11.19",
+      "es-toolkit": "1.41.0"
+    },
+    "testes": {
+      "@testing-library/react": "16.3.0",
+      "@testing-library/jest-dom": "6.9.1",
+      "@testing-library/user-event": "13.5.0"
+    }
+  },
+  "padroes": {
+    "nomenclatura": {
+      "componentes": "PascalCase",
+      "arquivos": "PascalCase (componentes), camelCase (utils)",
+      "funcoes": "camelCase",
+      "constantes": "UPPER_SNAKE_CASE"
+    },
+    "estruturaComponente": [
+      "Imports",
+      "Constantes",
+      "Componente principal",
+      "Hooks",
+      "Handlers",
+      "Effects",
+      "Render"
+    ],
+    "tratamentoErros": {
+      "padrao": "Try/catch em todas as chamadas de API",
+      "mensagens": "Amigáveis e claras",
+      "retry": "Automático em alguns casos",
+      "fallback": "Estados de erro"
+    },
+    "loadingStates": {
+      "individual": "Por operação",
+      "componente": "LoadingSpinner centralizado",
+      "skeleton": "Não implementado (recomendado)"
+    },
+    "validacao": {
+      "clientSide": "Antes de submit",
+      "mensagens": "Claras e específicas",
+      "arquivos": "Tipo e tamanho"
+    }
+  },
+  "estatisticas": {
+    "arquivos": {
+      "paginas": 7,
+      "componentes": 30,
+      "apis": 5,
+      "utils": 5,
+      "contexts": 1,
+      "theme": 1
+    },
+    "dependencias": {
+      "total": 27,
+      "dev": 5,
+      "tamanhoEstimado": "~500KB (gzipped)"
+    },
+    "rotas": {
+      "publicas": 1,
+      "protegidas": 8,
+      "comRoleEspecifica": 1
+    }
+  },
+  "recomendacoes": {
+    "uiux": {
+      "skeletonScreens": "Implementar em vez de spinners simples",
+      "microInteracoes": "Adicionar mais animações sutis",
+      "acessibilidade": "ARIA labels, navegação por teclado melhorada",
+      "pwa": "Adicionar capabilities de PWA"
+    },
+    "tecnica": {
+      "lazyLoading": "Implementar lazy loading de rotas",
+      "cache": "React Query ou SWR para cache de API",
+      "paginacao": "Adicionar na listagem de obras",
+      "typescript": "Migrar para TypeScript",
+      "testes": "Adicionar testes unitários e E2E",
+      "errorBoundary": "Adicionar error boundary",
+      "logging": "Sentry ou similar para logging de erros"
+    },
+    "funcionalidades": {
+      "bim": "Completar rota /bim e melhorar visualizador",
+      "relatorios": "Completar rota /reports e adicionar PDF",
+      "notificacoes": "Sistema real-time com WebSocket",
+      "buscaAvancada": "Filtros adicionais e ordenação"
+    },
+    "seguranca": {
+      "logoutMultiplo": "Implementar logout em todas as abas",
+      "timeoutSessao": "Adicionar timeout de sessão",
+      "sanitizacao": "Sanitização de inputs",
+      "rateLimiting": "Rate limiting visual"
+    },
+    "documentacao": {
+      "jsdoc": "Adicionar JSDoc nos componentes",
+      "readme": "Instruções detalhadas de setup",
+      "envVars": "Documentar variáveis de ambiente"
+    }
+  },
+  "conclusao": {
+    "pontosFortes": [
+      "Arquitetura clara e organizada",
+      "UI/UX moderna e responsiva",
+      "Sistema de autenticação robusto",
+      "Componentes reutilizáveis",
+      "Tema consistente e profissional",
+      "Tratamento de erros adequado"
+    ],
+    "areasMelhoria": [
+      "Testes automatizados",
+      "TypeScript para type safety",
+      "Otimizações de performance",
+      "Documentação de código",
+      "Funcionalidades pendentes (BIM, Relatórios)"
+    ],
+    "statusGeral": "Sólido e bem estruturado",
+    "prontoPara": ["Desenvolvimento contínuo", "Adição de novas features", "Escalabilidade"]
+  }
+}
+
